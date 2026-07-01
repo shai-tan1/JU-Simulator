@@ -16,36 +16,37 @@
     --sign:#2A1030;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;}
   body{
     background:var(--bg); color:var(--text);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     font-size:16px; line-height:1.65;
+    height:100vh;display:flex;flex-direction:column;
   }
-  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 56px;}
+  .wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;padding:8px 10px;gap:8px;}
   .signboard{
     background:var(--brick);
-    border:4px solid var(--brick-dark);
+    border:3px solid var(--brick-dark);
     border-radius:8px;
-    padding:14px 16px 16px;
-    margin:8px 0 6px;
+    padding:6px 12px;
     box-shadow:inset 0 0 0 3px rgba(0,0,0,0.15);
+    flex:0 0 auto;
   }
-  .signboard .board{background:var(--sign);border-radius:4px;padding:12px 10px;text-align:center;}
+  .signboard .board{background:var(--sign);border-radius:4px;padding:6px 10px;text-align:center;}
   h1{
     margin:0;font-family:"Silkscreen",monospace;font-weight:700;
-    font-size:clamp(22px,5.4vw,40px);letter-spacing:2px;color:var(--accent);text-transform:uppercase;
+    font-size:clamp(18px,3.6vw,28px);letter-spacing:2px;color:var(--accent);text-transform:uppercase;
   }
-  .tagline{margin:6px 0 0;font-family:"Silkscreen",monospace;font-size:clamp(9px,2vw,12px);color:#FF79C6;letter-spacing:1px;}
-  .subtitle{color:var(--muted);font-size:14px;margin:10px 2px 18px;}
+  .tagline{margin:3px 0 0;font-family:"Silkscreen",monospace;font-size:clamp(8px,1.6vw,11px);color:#FF79C6;letter-spacing:1px;}
+  #stagewrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
   #stage{
-    position:relative;width:100%;overflow:hidden;
+    position:relative;overflow:hidden;
     border:4px solid var(--brick-dark);border-radius:10px;background:#B9B29A;
     touch-action:none;
   }
   #world{position:absolute;top:0;left:0;width:1520px;height:950px;transform-origin:top left;background:#C7C0A6;}
   .hudpanel{position:absolute;background:rgba(12,10,24,0.85);border-radius:8px;z-index:20;}
-  .controls{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:14px;flex-wrap:wrap;}
+  .controls{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;}
   .dgrid{display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:42px 42px;gap:6px;}
   button{
     font-family:inherit;font-size:15px;color:var(--text);
@@ -63,16 +64,10 @@
   }
   #actbtn:hover{background:#f7cd6b;}
   .hint{font-size:13px;color:var(--muted);max-width:250px;}
-  h2{
-    font-family:"Silkscreen",monospace;font-weight:400;font-size:15px;
-    color:var(--accent);letter-spacing:1px;margin:36px 0 10px;text-transform:uppercase;
-  }
-  .howto p{margin:0 0 10px;color:#CFC8E8;font-size:15px;}
   .kbd{
     font-family:"Silkscreen",monospace;font-size:11px;background:var(--panel-2);
     border:1px solid #453A85;border-radius:4px;padding:2px 7px;color:var(--accent);white-space:nowrap;
   }
-  footer{margin-top:42px;border-top:1px solid #2E2660;padding-top:14px;color:var(--muted);font-size:13px;}
   @media (prefers-reduced-motion: reduce){*{transition:none !important;}}
 </style>
 </head>
@@ -84,8 +79,7 @@
       <p class="tagline">&#9670; 188, RAJA S.C. MALLICK ROAD &#9670;</p>
     </div>
   </header>
-  <p class="subtitle">A campus life simulator laid out after the official Jadavpur University site map. Attend ETCE classes at Prayukti Bhavan, dodge PC Sir, keep attendance above 75%, and make it to Sanskriti week. You start at the "YOU ARE HERE" dot near Gate 3.</p>
-
+  <div id="stagewrap">
   <div id="stage">
     <div id="world"></div>
 
@@ -127,6 +121,7 @@
       </div>
     </div>
   </div>
+  </div>
 
   <div class="controls">
     <div class="dgrid">
@@ -140,22 +135,12 @@
     <button id="actbtn" disabled>Action (E)</button>
     <div class="hint">Move with <span class="kbd">WASD</span> or arrow keys, interact with <span class="kbd">E</span>. The red dot is PC Sir &mdash; avoid him while bunking.</div>
   </div>
-
-  <section class="howto">
-    <h2>How to play</h2>
-    <p>You get 20 time slots across the semester. Every interaction spends one. Attend classes at Prayukti Bhavan to keep attendance up &mdash; drop below 75% and you're debarred before the fest. The Central Library raises CGPA, Milonda's, the hostel and the Food Tech Building restore energy, and Jheel Paar, OAT, and the Green Zone keep your mood alive.</p>
-    <p>Money matters: chaa, phuchka, and egg rolls cost cash. Earn it by taking tuition in the Green Zone or collecting your scholarship at Aurobindo Bhavan. Survive the semester with attendance intact and Sanskriti week unlocks &mdash; Pronite at OAT, fairy lights at the jheel, and fest points that feed your final verdict.</p>
-  </section>
-
-  <footer>
-    A fan project made for fun. Not affiliated with Jadavpur University. Layout, legend colors and building names follow the official campus site map. "PC Sir" is a fictional character.
-  </footer>
 </div>
 
 <script>
 (function(){
   var WW=1520,WH=950,VW=640,VH=400,SEM=20,FEST=4;
-  var world=document.getElementById("world"),stage=document.getElementById("stage");
+  var world=document.getElementById("world"),stage=document.getElementById("stage"),stagewrap=document.getElementById("stagewrap");
   var roadY=872;
   var poly=[
     [350,150],[900,105],[1285,95],[1462,330],[1448,860],
@@ -450,7 +435,12 @@
   }
   function hits(n,r){var dx=(px+8)-(n.x+7),dy=(py+11)-(n.y+10);return dx*dx+dy*dy<r*r;}
   var sc=1;
-  function fit(){sc=stage.clientWidth/VW;stage.style.height=(VH*sc)+"px";}
+  function fit(){
+    var availW=stagewrap.clientWidth,availH=stagewrap.clientHeight;
+    sc=Math.min(availW/VW,availH/VH);
+    stage.style.width=(VW*sc)+"px";
+    stage.style.height=(VH*sc)+"px";
+  }
   function tryMove(dx,dy){
     var nx=clamp(px+dx,4,WW-20),ny=clamp(py+dy,4,WH-26);
     if(pointIn(nx+8,ny+11)){px=nx;py=ny;return;}
