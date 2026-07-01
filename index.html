@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JU Simulator — Jadavpur University campus game</title>
+<meta name="description" content="A pixel-art campus life simulator set in Jadavpur University. Attend classes at Prayukti Bhavan, dodge PC Sir, eat at Milonda's, survive till Sanskriti.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#171233; --panel:#1F1845; --panel-2:#2A2158;
+    --text:#EFEAF8; --muted:#9A93BE;
+    --accent:#F2C14E; --green:#9FE1A0; --brick:#8E3038; --brick-dark:#5E1B22;
+    --sign:#2A1030;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-size:16px; line-height:1.65;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding:20px 16px 56px;}
+  .signboard{
+    background:var(--brick);
+    border:4px solid var(--brick-dark);
+    border-radius:8px;
+    padding:14px 16px 16px;
+    margin:8px 0 6px;
+    box-shadow:inset 0 0 0 3px rgba(0,0,0,0.15);
+  }
+  .signboard .board{
+    background:var(--sign);
+    border-radius:4px;
+    padding:12px 10px;
+    text-align:center;
+  }
+  h1{
+    margin:0;
+    font-family:"Silkscreen",monospace;
+    font-weight:700;
+    font-size:clamp(22px,5.4vw,40px);
+    letter-spacing:2px;
+    color:var(--accent);
+    text-transform:uppercase;
+  }
+  .tagline{
+    margin:6px 0 0;
+    font-family:"Silkscreen",monospace;
+    font-size:clamp(9px,2vw,12px);
+    color:#FF79C6;
+    letter-spacing:1px;
+  }
+  .subtitle{color:var(--muted);font-size:14px;margin:10px 2px 18px;}
+  #stage{
+    position:relative;width:100%;overflow:hidden;
+    border:4px solid var(--brick-dark);border-radius:10px;background:#4a8f3c;
+    touch-action:none;
+  }
+  #world{position:absolute;top:0;left:0;width:1400px;height:900px;transform-origin:top left;background:#6ABD4F;}
+  .hudpanel{position:absolute;background:rgba(12,10,24,0.85);border-radius:8px;z-index:20;}
+  .controls{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:14px;gap:14px;flex-wrap:wrap;
+  }
+  .dgrid{display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:42px 42px;gap:6px;}
+  button{
+    font-family:inherit;font-size:15px;color:var(--text);
+    background:var(--panel-2);border:1px solid #453A85;border-radius:8px;
+    cursor:pointer;padding:8px 14px;
+  }
+  button:hover{background:#342a68;}
+  button:active{transform:scale(0.97);}
+  button:disabled{opacity:0.45;cursor:default;}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .dpad{padding:0;font-size:17px;user-select:none;touch-action:none;}
+  #actbtn{
+    background:var(--accent);color:#2A1030;border-color:#B08820;
+    font-family:"Silkscreen",monospace;font-size:13px;padding:12px 20px;letter-spacing:1px;
+  }
+  #actbtn:hover{background:#f7cd6b;}
+  .hint{font-size:13px;color:var(--muted);max-width:250px;}
+  h2{
+    font-family:"Silkscreen",monospace;font-weight:400;font-size:15px;
+    color:var(--accent);letter-spacing:1px;margin:36px 0 10px;text-transform:uppercase;
+  }
+  .howto p{margin:0 0 10px;color:#CFC8E8;font-size:15px;}
+  .kbd{
+    font-family:"Silkscreen",monospace;font-size:11px;background:var(--panel-2);
+    border:1px solid #453A85;border-radius:4px;padding:2px 7px;color:var(--accent);white-space:nowrap;
+  }
+  footer{margin-top:42px;border-top:1px solid #2E2660;padding-top:14px;color:var(--muted);font-size:13px;}
+  @media (prefers-reduced-motion: reduce){*{transition:none !important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="signboard">
+    <div class="board">
+      <h1>JU Simulator</h1>
+      <p class="tagline">&#9670; 188, RAJA S.C. MALLICK ROAD &#9670;</p>
+    </div>
+  </header>
+  <p class="subtitle">A campus life simulator set in Jadavpur University. Attend ETCE classes at Prayukti Bhavan, dodge PC Sir, keep attendance above 75%, and make it to Sanskriti week.</p>
+
+  <div id="stage">
+    <div id="world"></div>
+
+    <div class="hudpanel" style="top:8px;left:8px;padding:8px 10px;min-width:128px;">
+      <div style="display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#F2C14E;letter-spacing:0.5px;"><span>CGPA</span><span id="h-cg" style="color:#fff;">7.50</span></div>
+      <div style="height:5px;background:rgba(255,255,255,0.15);border-radius:3px;margin:2px 0 5px;"><div id="b-cg" style="height:5px;background:#F2C14E;border-radius:3px;width:75%;"></div></div>
+      <div style="display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#FF5C8A;letter-spacing:0.5px;"><span>ATTEND</span><span id="h-att" style="color:#fff;">70</span></div>
+      <div style="height:5px;background:rgba(255,255,255,0.15);border-radius:3px;margin:2px 0 5px;"><div id="b-att" style="height:5px;background:#FF5C8A;border-radius:3px;width:70%;"></div></div>
+      <div style="display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#4FD8E8;letter-spacing:0.5px;"><span>ENERGY</span><span id="h-en" style="color:#fff;">80</span></div>
+      <div style="height:5px;background:rgba(255,255,255,0.15);border-radius:3px;margin:2px 0 5px;"><div id="b-en" style="height:5px;background:#4FD8E8;border-radius:3px;width:80%;"></div></div>
+      <div style="display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#D97CF6;letter-spacing:0.5px;"><span>MOOD</span><span id="h-md" style="color:#fff;">60</span></div>
+      <div style="height:5px;background:rgba(255,255,255,0.15);border-radius:3px;margin:2px 0 5px;"><div id="b-md" style="height:5px;background:#D97CF6;border-radius:3px;width:60%;"></div></div>
+      <div style="display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#9FE1A0;letter-spacing:0.5px;"><span>MONEY</span><span id="h-mn" style="color:#fff;">&#8377;300</span></div>
+    </div>
+
+    <div style="position:absolute;top:8px;right:8px;z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+      <div style="display:flex;gap:6px;">
+        <div id="h-day" class="hudpanel" style="position:static;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;">Day 1 / 5 &middot; Sem</div>
+        <div id="h-clock" class="hudpanel" style="position:static;color:#F2C14E;font-size:11px;padding:4px 8px;border-radius:6px;">9 AM</div>
+      </div>
+      <div id="mmap" style="position:relative;width:140px;height:90px;background:#2C5E2E;border:2px solid rgba(12,10,24,0.85);border-radius:6px;overflow:hidden;"></div>
+      <div id="qpanel" class="hudpanel" style="position:static;padding:6px 9px;max-width:170px;">
+        <div style="font-size:10px;color:#F2C14E;letter-spacing:0.5px;margin-bottom:3px;">QUESTS</div>
+        <div id="q1" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; First lecture at Prayukti Bhavan</div>
+        <div id="q2" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; Chaa at Milonda's</div>
+        <div id="q3" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; Visit all 6 engg depts (0/6)</div>
+        <div id="q4" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; Make it to Sanskriti</div>
+      </div>
+    </div>
+
+    <div id="toast" style="position:absolute;left:50%;top:8px;transform:translateX(-50%);background:rgba(12,10,24,0.92);color:#fff;font-size:12px;padding:6px 12px;border-radius:8px;z-index:25;display:none;max-width:70%;text-align:center;"></div>
+    <div id="ticker" style="position:absolute;left:50%;bottom:8px;transform:translateX(-50%);background:rgba(12,10,24,0.85);color:#9FE1A0;font-size:11px;padding:5px 12px;border-radius:6px;z-index:20;white-space:nowrap;max-width:80%;overflow:hidden;text-overflow:ellipsis;"></div>
+
+    <div id="endscr" style="position:absolute;inset:0;background:rgba(20,12,44,0.94);z-index:30;display:none;align-items:center;justify-content:center;">
+      <div style="text-align:center;color:#fff;padding:20px;max-width:460px;">
+        <div style="font-family:'Silkscreen',monospace;font-size:17px;margin-bottom:8px;color:#F2C14E;" id="end-title"></div>
+        <div style="font-size:13px;line-height:1.6;margin-bottom:14px;color:#ddd;" id="end-body"></div>
+        <button id="restart" style="background:#F2C14E;color:#2A1030;border:none;padding:8px 18px;border-radius:8px;font-size:14px;">Play again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="dgrid">
+      <div></div>
+      <button class="dpad" data-d="up" aria-label="Move up">&#9650;</button>
+      <div></div>
+      <button class="dpad" data-d="left" aria-label="Move left">&#9664;</button>
+      <button class="dpad" data-d="down" aria-label="Move down">&#9660;</button>
+      <button class="dpad" data-d="right" aria-label="Move right">&#9654;</button>
+    </div>
+    <button id="actbtn" disabled>Action (E)</button>
+    <div class="hint">Move with <span class="kbd">WASD</span> or arrow keys, interact with <span class="kbd">E</span>. The red dot is PC Sir &mdash; avoid him while bunking.</div>
+  </div>
+
+  <section class="howto">
+    <h2>How to play</h2>
+    <p>You get 20 time slots across the semester. Every interaction spends one. Attend classes at Prayukti Bhavan to keep attendance up &mdash; drop below 75% and you're debarred before the fest. The Central Library raises CGPA, Milonda's and the Food Tech Building restore energy, and Jheel Paar, OAT, and the Green Zone keep your mood alive.</p>
+    <p>Money matters: chaa, phuchka, and egg rolls cost cash. Earn it by taking tuition in the Green Zone or collecting your scholarship at Aurobindo Bhavan. Survive the semester with attendance intact and Sanskriti week unlocks &mdash; Pronite at OAT, fairy lights at the jheel, and fest points that feed your final verdict.</p>
+  </section>
+
+  <footer>
+    A fan project made for fun. Not affiliated with Jadavpur University. Building names sourced from the official campus map.
+  </footer>
+</div>
+
+<script>
+(function(){
+  var WW=1400,WH=900,VW=640,VH=400,SEM=20,FEST=4;
+  var world=document.getElementById("world"),stage=document.getElementById("stage");
+  var roadY=830, spine=[100,545,1240,30], lane=[850,282,520,26];
+  var vpaths=[[168,575,26,255],[518,575,26,255],[868,575,26,255],[1218,575,26,255],[928,308,26,237],[1068,308,26,237]];
+  var lake={x:460,y:95,w:280,h:200};
+  var oval={x:55,y:80,w:320,h:330};
+  var B=[
+    {x:880,y:50,w:170,h:100,name:"Prayukti Bhavan",safe:true,act:"Attend ETCE class",fx:{att:+6,en:-10,cg:+0.08},msg:"DSP lecture at Prayukti Bhavan attended. PC Sir nodded at you.",festAct:"Volunteer desk",festFx:{mn:+100,md:+6,fest:+1,en:-8},festMsg:"Fest volunteer duty at Prayukti Bhavan. \u20B9100 honorarium plus free snacks.",q:"first"},
+    {x:1090,y:55,w:140,h:85,name:"Mechanical Building",dept:true,act:"Workshop practical",fx:{cg:+0.1,en:-12},msg:"Fitting job at the Mechanical workshop. Your file work is still crooked."},
+    {x:1265,y:60,w:115,h:85,name:"Electrical Building",dept:true,act:"Machines lab",fx:{cg:+0.1,en:-10,md:-2},msg:"Machines lab at Electrical. The transformer hummed. So did you, nervously."},
+    {x:880,y:180,w:130,h:80,name:"Metallurgy Building",dept:true,act:"Furnace lab",fx:{cg:+0.1,en:-12,md:+2},msg:"Watched molten metal pour at Metallurgy. Objectively metal."},
+    {x:1045,y:180,w:130,h:80,name:"Civil Building",dept:true,act:"Surveying practical",fx:{cg:+0.1,en:-12},msg:"Theodolite survey with Civil folks. You measured the same wall thrice."},
+    {x:1210,y:180,w:130,h:80,name:"Chemical Building",dept:true,act:"Titration lab",fx:{cg:+0.12,en:-12,md:-3},msg:"Titration at Chemical Building. Endpoint missed twice, dignity thrice."},
+    {x:1000,y:335,w:150,h:80,name:"Food Tech Building",dept:true,act:"Taste-testing",fx:{en:+12,md:+10,cg:+0.04},msg:"FTBE friends needed taste-testers. You bravely volunteered. Twice."},
+    {x:1190,y:335,w:150,h:80,name:"Blue Earth Workshop",act:"Tinker",fx:{cg:+0.06,md:+5,en:-8},msg:"Tinkered at Blue Earth Workshop. Made a thing. It almost works."},
+    {x:560,y:370,w:155,h:95,name:"Central Library",act:"Grind DSA",fx:{cg:+0.22,en:-14,md:-4},msg:"Three hours of segment trees in the Central Library. The AC alone was worth it.",festAct:"Sneak-study",festFx:{cg:+0.12,md:-6,en:-10},festMsg:"Studying during Sanskriti? The librarian respects it. Your friends don't."},
+    {x:765,y:395,w:105,h:85,name:"OAT",act:"Jam at OAT",fx:{md:+18,en:-12,att:-2},msg:"Open mic at OAT. Someone covered Anuv Jain, you screamed every lyric.",festAct:"PRONITE!",festFx:{md:+25,en:-18,fest:+2},festMsg:"PRONITE at OAT. Front row, strangers' shoulders, voice gone by song three."},
+    {x:300,y:625,w:150,h:80,name:"Green Zone",act:"Take tuition",fx:{mn:+200,en:-12,md:-2},msg:"Taught a class 11 kid integration in Green Zone. \u20B9200 earned honestly.",festAct:"Stall hopping",festFx:{md:+10,mn:-40,fest:+1},festMsg:"Fest stalls in Green Zone. Bought a bracelet you'll never wear. \u20B940 gone."},
+    {x:640,y:640,w:150,h:80,name:"Gandhi Bhavan",act:"Attend seminar",fx:{cg:+0.08,md:-4,en:-6},msg:"A two-hour seminar at Gandhi Bhavan. You clapped when others clapped.",festAct:"Fest debate",festFx:{md:+8,fest:+1,en:-6},festMsg:"Fest debate at Gandhi Bhavan. JU debating remains undefeated in chaos."},
+    {x:850,y:640,w:170,h:80,name:"UG Arts Building",act:"Arts adda",fx:{md:+10,en:-4},msg:"Adda with Arts friends. You now hold opinions on three film movements."},
+    {x:1130,y:620,w:185,h:95,name:"Aurobindo Bhavan",act:"Collect scholarship",fx:{mn:+150,md:-8,en:-6},msg:"One hour queue at Aurobindo Bhavan, but the scholarship cleared. \u20B9150 in.",festAct:"Fest pass desk",festFx:{mn:+80,en:-5,fest:+1},festMsg:"Fest pass counter duty at Aurobindo Bhavan. \u20B980 and infinite gossip."},
+    {x:395,y:470,w:110,h:65,name:"Milonda's Canteen",cost:30,act:"Chaa + toast \u00B7 \u20B930",fx:{en:+16,md:+8,mn:-30},msg:"Cheese toast and lebu chaa at Milonda's. \u20B930 well spent.",festAct:"Fest special \u00B7 \u20B950",festFx:{en:+20,md:+10,mn:-50,fest:+1},festMsg:"Milonda's fest special. Queue was 20 minutes, worth 40.",q:"chaa"}
+  ];
+  var ovalB={x:oval.x,y:oval.y,w:oval.w,h:oval.h,name:"JU Sports Ground",field:true,act:"Play a match",fx:{en:-15,md:+14},msg:"Gully cricket on the ground. Run out again, but what a cover drive.",festAct:"Fest football",festFx:{md:+12,en:-12,fest:+1},festMsg:"Inter-dept fest football. ETCE lost, morale somehow won."};
+  var lakeB={x:lake.x,y:lake.y,w:lake.w,h:lake.h,name:"Jheel Paar",water:true,act:"Chill by the jheel",fx:{md:+12,en:+6,att:-3},msg:"Adda at Jheel Paar. A cat adopted your lap for 40 minutes.",festAct:"Fairy-light adda",festFx:{md:+15,en:+5,fest:+1},festMsg:"Jheel Paar under fest fairy lights. Someone brought a guitar. Peak college."};
+  var gates=[
+    {x:150,y:795,w:60,h:38,name:"Gate 1",act:"Cha break outside",fx:{md:+8,en:+6,att:-2,mn:-10},msg:"Bhaarer cha outside Gate 1. \u20B910 of pure peace.",cost:10},
+    {x:500,y:795,w:60,h:38,name:"Gate 2",act:"Book stall browse",fx:{md:+6,mn:-20},msg:"Second-hand book stall near Gate 2. Bought a \u20B920 Feluda you already own.",cost:20},
+    {x:850,y:795,w:60,h:38,name:"Gate 3",act:"Roll run \u00B7 \u20B940",fx:{en:+12,md:+8,mn:-40,att:-3},msg:"Egg roll outside Gate 3. Extra chilli, extra life.",cost:40},
+    {x:1200,y:795,w:60,h:38,name:"Gate 4",act:"Phuchka run \u00B7 \u20B920",fx:{md:+14,en:+4,att:-4,mn:-20},msg:"Sneaked out of Gate 4. Extra jhaal phuchka, zero regrets.",cost:20,festAct:"Momo run \u00B7 \u20B930",festFx:{md:+12,en:+8,mn:-30,fest:+1},festMsg:"Gate 4 momo run with the whole gang. Fest cardio complete."}
+  ];
+  var ALL=B.concat([ovalB,lakeB]).concat(gates);
+  var events=[
+    {t:"Surprise quiz in DSP \u2014 CP instincts carried you.",fx:{cg:+0.15}},
+    {t:"You won a Codeforces virtual bet. \u20B9100 richer.",fx:{md:+6,mn:+100}},
+    {t:"Kalboishakhi rain across campus. Drenched but alive.",fx:{en:-6,md:+4}},
+    {t:"Hostel mess biryani day. Morale restored.",fx:{md:+8,en:+6}},
+    {t:"Senior treated everyone at Milonda's after placement.",fx:{md:+8,en:+8}},
+    {t:"Auto from 8B overcharged you. \u20B930 gone.",fx:{mn:-30,md:-3}},
+    {t:"Found \u20B950 in your old jeans. Finance sorted.",fx:{mn:+50,md:+4}}
+  ];
+  var slotT=["9 AM","12 PM","4 PM","8 PM"];
+  var html="";
+  html+="<div style='position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,0,0,0.045) 39px,rgba(0,0,0,0.045) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,0,0,0.045) 39px,rgba(0,0,0,0.045) 40px);'></div>";
+  html+="<div style='position:absolute;left:0;top:"+roadY+"px;width:"+WW+"px;height:70px;background:#4A4A4A;border-top:4px solid #6b6b6b;'></div>";
+  html+="<div style='position:absolute;left:0;top:"+(roadY+32)+"px;width:"+WW+"px;height:5px;background:repeating-linear-gradient(90deg,#E8E8E8 0 40px,transparent 40px 80px);'></div>";
+  html+="<div style='position:absolute;left:12px;top:"+(roadY+44)+"px;font-size:13px;color:#ddd;letter-spacing:2px;'>RAJA S.C. MALLICK ROAD</div>";
+  function path(x,y,w,h){html+="<div style='position:absolute;left:"+x+"px;top:"+y+"px;width:"+w+"px;height:"+h+"px;background:#D9C68F;border:2px solid #C4AF74;'></div>";}
+  path(spine[0],spine[1],spine[2],spine[3]);
+  path(lane[0],lane[1],lane[2],lane[3]);
+  vpaths.forEach(function(p){path(p[0],p[1],p[2],p[3]);});
+  html+="<div style='position:absolute;left:"+oval.x+"px;top:"+oval.y+"px;width:"+oval.w+"px;height:"+oval.h+"px;background:#8CCE6C;border:3px solid #7ABF5C;border-radius:14px;'></div>";
+  html+="<div style='position:absolute;left:"+(oval.x+35)+"px;top:"+(oval.y+40)+"px;width:"+(oval.w-70)+"px;height:"+(oval.h-80)+"px;border:3px solid #F4F4F4;border-radius:50%;'></div>";
+  html+="<div style='position:absolute;left:"+(oval.x+8)+"px;top:"+(oval.y+6)+"px;font-size:12px;font-weight:500;color:#2F5E1E;'>JU Sports Ground</div>";
+  html+="<div style='position:absolute;left:"+lake.x+"px;top:"+lake.y+"px;width:"+lake.w+"px;height:"+lake.h+"px;background:#4FA8D8;border:4px solid #2E7FB0;border-radius:48% 52% 55% 45%;'></div>";
+  html+="<div style='position:absolute;left:"+(lake.x+lake.w/2-38)+"px;top:"+(lake.y+lake.h/2-9)+"px;font-size:13px;font-weight:500;color:#0C3B5C;'>Jheel Paar</div>";
+  function bld(b){
+    var body=b.name==="Milonda's Canteen"?"#B5651D":"#8E3038";
+    var sign=b.safe?"#2A1030":"#221226";
+    html+="<div style='position:absolute;left:"+b.x+"px;top:"+b.y+"px;width:"+b.w+"px;height:"+b.h+"px;background:"+body+";border:3px solid #5E1B22;border-radius:4px;display:flex;flex-direction:column;overflow:hidden;'>";
+    html+="<div style='background:"+sign+";padding:3px 4px;text-align:center;font-size:11px;font-weight:500;color:"+(b.safe?"#FF79C6":"#F2C14E")+";white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>"+b.name.toUpperCase()+"</div>";
+    html+="<div style='flex:1;margin:5px 7px 0;background:repeating-linear-gradient(90deg,#274B6D 0 14px,"+body+" 14px 22px),repeating-linear-gradient(0deg,#274B6D 0 10px,"+body+" 10px 16px);background-blend-mode:darken;opacity:0.9;'></div>";
+    html+="<div style='width:16px;height:12px;background:#5A3213;margin:0 auto;border-radius:3px 3px 0 0;'></div>";
+    html+="</div>";
+  }
+  B.forEach(bld);
+  gates.forEach(function(g){
+    html+="<div style='position:absolute;left:"+g.x+"px;top:"+g.y+"px;width:"+g.w+"px;height:"+g.h+"px;'>";
+    html+="<div style='position:absolute;left:0;top:0;width:12px;height:38px;background:#8E3038;border:2px solid #5E1B22;'></div>";
+    html+="<div style='position:absolute;right:0;top:0;width:12px;height:38px;background:#8E3038;border:2px solid #5E1B22;'></div>";
+    html+="<div style='position:absolute;left:0;top:-14px;width:100%;text-align:center;font-size:11px;font-weight:500;color:#FFF;background:rgba(42,16,48,0.85);border-radius:3px;padding:1px 0;'>"+g.name+"</div>";
+    html+="</div>";
+  });
+  var obst=ALL.map(function(b){return[b.x-14,b.y-20,b.w+28,b.h+34];});
+  obst.push([0,roadY-14,WW,120]);
+  obst.push([spine[0]-8,spine[1]-30,spine[2]+16,spine[3]+44]);
+  obst.push([lane[0]-8,lane[1]-30,lane[2]+16,lane[3]+44]);
+  vpaths.forEach(function(p){obst.push([p[0]-14,p[1]-14,p[2]+28,p[3]+28]);});
+  function free(x,y){for(var i=0;i<obst.length;i++){var o=obst[i];if(x>o[0]&&x<o[0]+o[2]&&y>o[1]&&y<o[1]+o[3])return false;}return true;}
+  var placed=0,tries=0;
+  while(placed<64&&tries<900){
+    tries++;
+    var tx=20+Math.random()*(WW-60),ty=20+Math.random()*(roadY-80);
+    if(!free(tx,ty))continue;
+    placed++;
+    html+="<div style='position:absolute;left:"+tx+"px;top:"+ty+"px;width:28px;height:36px;'><div style='width:26px;height:26px;background:#2E8B32;border:3px solid #226B27;border-radius:9px;'></div><div style='width:7px;height:9px;background:#6B4423;margin:-2px auto 0;'></div></div>";
+  }
+  placed=0;tries=0;
+  while(placed<14&&tries<400){
+    tries++;
+    var fx2=20+Math.random()*(WW-60),fy2=20+Math.random()*(roadY-80);
+    if(!free(fx2,fy2))continue;
+    placed++;
+    html+="<div style='position:absolute;left:"+fx2+"px;top:"+fy2+"px;width:22px;height:16px;'><span style='position:absolute;left:0;top:2px;width:4px;height:4px;background:#F2C14E;border-radius:50%;'></span><span style='position:absolute;left:9px;top:8px;width:4px;height:4px;background:#F08FB8;border-radius:50%;'></span><span style='position:absolute;left:16px;top:0;width:4px;height:4px;background:#F2C14E;border-radius:50%;'></span></div>";
+  }
+  html+="<div id='prompt' style='position:absolute;display:none;background:#F4F0E4;color:#2A1030;border:2px solid #2A1030;font-size:12px;font-weight:500;padding:3px 9px;border-radius:4px;z-index:12;white-space:nowrap;'></div>";
+  world.innerHTML=html;
+  function mkNpc(color,z){
+    var d=document.createElement("div");
+    d.style.cssText="position:absolute;width:14px;height:20px;z-index:"+z+";";
+    d.innerHTML="<div style='width:9px;height:9px;background:#E8B88A;border-radius:50%;margin:0 auto;'></div><div style='width:12px;height:10px;background:"+color+";border-radius:2px;margin:0 auto;'></div>";
+    world.appendChild(d);return d;
+  }
+  var shirt=["#2E5EAA","#C9382E","#E8A020","#3E8E5A","#7B4FA6"];
+  var wanderers=[];
+  for(var wi=0;wi<5;wi++){
+    wanderers.push({el:mkNpc(shirt[wi],4),x:200+Math.random()*1000,y:150+Math.random()*550,tx:0,ty:0,sp:0.55+Math.random()*0.4,zone:[60,80,1340,780]});
+  }
+  var prof={el:mkNpc("#111",7),x:1000,y:200,tx:1000,ty:200,sp:1.15,zone:[860,45,1385,430]};
+  prof.el.firstChild.style.background="#D8A070";
+  var cat={el:null,x:500,y:320,tx:500,ty:320,sp:0.6,zone:[430,300,780,360]};
+  var cd=document.createElement("div");
+  cd.style.cssText="position:absolute;width:12px;height:10px;background:#854F0B;border-radius:4px;z-index:4;";
+  world.appendChild(cd);cat.el=cd;
+  var friend={el:mkNpc("#0F6E56",5),x:600,y:600,tx:600,ty:600,sp:0.8,zone:[100,100,1300,780]};
+  var pel=document.createElement("div");
+  pel.style.cssText="position:absolute;width:16px;height:22px;z-index:9;";
+  pel.innerHTML="<div style='width:10px;height:10px;background:#E8B88A;border-radius:50%;margin:0 auto;border:1px solid #B08050;'></div><div style='width:14px;height:11px;background:#F2C14E;border-radius:2px;margin:0 auto;border:1px solid #B08820;'></div>";
+  world.appendChild(pel);
+  var mm=document.getElementById("mmap"),ms=140/WW;
+  var mh="";
+  mh+="<div style='position:absolute;left:0;top:"+(roadY*ms)+"px;width:140px;height:6px;background:#555;'></div>";
+  mh+="<div style='position:absolute;left:"+(oval.x*ms)+"px;top:"+(oval.y*ms)+"px;width:"+(oval.w*ms)+"px;height:"+(oval.h*ms)+"px;background:#7ABF5C;border-radius:3px;'></div>";
+  mh+="<div style='position:absolute;left:"+(lake.x*ms)+"px;top:"+(lake.y*ms)+"px;width:"+(lake.w*ms)+"px;height:"+(lake.h*ms)+"px;background:#4FA8D8;border-radius:50%;'></div>";
+  B.forEach(function(b){mh+="<div style='position:absolute;left:"+(b.x*ms)+"px;top:"+(b.y*ms)+"px;width:"+Math.max(3,b.w*ms)+"px;height:"+Math.max(3,b.h*ms)+"px;background:#B04048;'></div>";});
+  mh+="<div id='mmp' style='position:absolute;width:4px;height:4px;background:#F2C14E;border-radius:50%;z-index:2;'></div>";
+  mh+="<div id='mmprof' style='position:absolute;width:4px;height:4px;background:#FF4444;border-radius:50%;z-index:2;'></div>";
+  mm.innerHTML=mh;
+  var mmp=document.getElementById("mmp"),mmprof=document.getElementById("mmprof");
+  var s,px,py,keys={},touch={},near=null,profCool=0,friendCool=0,catCool=0;
+  var toast=document.getElementById("toast"),tt=null,prompt=document.getElementById("prompt"),act=document.getElementById("actbtn");
+  function clamp(v,a,b){return v<a?a:(v>b?b:v);}
+  function reset(){
+    s={att:70,en:80,md:60,cg:7.5,mn:300,slot:0,fest:0,inFest:false,over:false,q1:false,q2:false,q4:false,depts:{}};
+    px=1225;py=760;profCool=0;
+    document.getElementById("endscr").style.display="none";
+    sync();
+  }
+  function showToast(m){toast.textContent=m;toast.style.display="block";clearTimeout(tt);tt=setTimeout(function(){toast.style.display="none";},3200);}
+  function apply(fx){
+    if(fx.att)s.att=clamp(s.att+fx.att,0,100);
+    if(fx.en)s.en=clamp(s.en+fx.en,0,100);
+    if(fx.md)s.md=clamp(s.md+fx.md,0,100);
+    if(fx.cg)s.cg=clamp(s.cg+fx.cg,0,10);
+    if(fx.mn)s.mn=Math.max(0,s.mn+fx.mn);
+    if(fx.fest)s.fest+=fx.fest;
+  }
+  function deptCount(){var c=0;for(var k in s.depts)c++;return c;}
+  function qsync(){
+    var q1=document.getElementById("q1"),q2=document.getElementById("q2"),q3=document.getElementById("q3"),q4=document.getElementById("q4");
+    q1.textContent=(s.q1?"\u2714":"\u25A1")+" First lecture at Prayukti Bhavan";q1.style.color=s.q1?"#9FE1A0":"#ddd";
+    q2.textContent=(s.q2?"\u2714":"\u25A1")+" Chaa at Milonda's";q2.style.color=s.q2?"#9FE1A0":"#ddd";
+    var dc=deptCount();
+    q3.textContent=(dc>=6?"\u2714":"\u25A1")+" Visit all 6 engg depts ("+dc+"/6)";q3.style.color=dc>=6?"#9FE1A0":"#ddd";
+    q4.textContent=(s.q4?"\u2714":"\u25A1")+" Make it to Sanskriti";q4.style.color=s.q4?"#9FE1A0":"#ddd";
+    var tk=document.getElementById("ticker");
+    if(s.over)tk.textContent="Semester over.";
+    else if(!s.q1)tk.textContent="\u2022 Attend your first lecture at Prayukti Bhavan";
+    else if(!s.q2)tk.textContent="\u2022 Grab chaa at Milonda's Canteen";
+    else if(dc<6)tk.textContent="\u2022 Explore the engineering departments ("+dc+"/6)";
+    else if(!s.q4)tk.textContent="\u2022 Keep attendance \u226575% until Sanskriti";
+    else tk.textContent="\u2022 Sanskriti week \u2014 go make memories";
+  }
+  function sync(){
+    document.getElementById("h-cg").textContent=s.cg.toFixed(2);
+    document.getElementById("b-cg").style.width=(s.cg*10)+"%";
+    document.getElementById("h-att").textContent=Math.round(s.att);
+    document.getElementById("b-att").style.width=s.att+"%";
+    document.getElementById("b-att").style.background=s.att<75?"#FF4444":"#FF5C8A";
+    document.getElementById("h-en").textContent=Math.round(s.en);
+    document.getElementById("b-en").style.width=s.en+"%";
+    document.getElementById("h-md").textContent=Math.round(s.md);
+    document.getElementById("b-md").style.width=s.md+"%";
+    document.getElementById("h-mn").textContent="\u20B9"+Math.round(s.mn);
+    var d=document.getElementById("h-day");
+    d.textContent=s.over?"Sem over":(s.inFest?"SANSKRITI \u00B7 "+((SEM+FEST)-s.slot)+" left":"Day "+(Math.floor(s.slot/4)+1)+" / 5 \u00B7 Sem");
+    document.getElementById("h-clock").textContent=slotT[s.slot%4];
+    qsync();
+  }
+  function doAction(){
+    if(!near||s.over)return;
+    var b=near;
+    var fx=s.inFest&&b.festFx?b.festFx:b.fx;
+    var msg=s.inFest&&b.festMsg?b.festMsg:b.msg;
+    if(fx.mn&&fx.mn<0&&s.mn<-fx.mn){showToast("Pocket khali! Tuition in Green Zone or scholarship at Aurobindo Bhavan first.");return;}
+    if(s.en<=8&&fx.en&&fx.en<0){showToast("Too tired. Milonda's, Food Tech, or the jheel first.");return;}
+    apply(fx);
+    if(b.q==="first")s.q1=true;
+    if(b.q==="chaa")s.q2=true;
+    if(b.dept)s.depts[b.name]=true;
+    var m=msg;
+    if(!s.inFest&&Math.random()<0.28){var e=events[Math.floor(Math.random()*events.length)];apply(e.fx);m+=" Also: "+e.t;}
+    s.slot++;
+    if(!s.inFest&&s.slot>=SEM){
+      if(s.att<75){showToast(m);endGame();sync();return;}
+      s.inFest=true;s.q4=true;
+      m+=" \u2014 SANSKRITI BEGINS! Classes suspended. PC Sir has gone home.";
+    }
+    showToast(m);
+    if(s.slot>=SEM+FEST)endGame();
+    sync();
+  }
+  function endGame(){
+    s.over=true;
+    var dc=deptCount(),qd=(s.q1?1:0)+(s.q2?1:0)+(dc>=6?1:0)+(s.q4?1:0);
+    var base="Attendance "+Math.round(s.att)+"% \u00B7 CGPA "+s.cg.toFixed(2)+" \u00B7 mood "+Math.round(s.md)+" \u00B7 \u20B9"+Math.round(s.mn)+" \u00B7 fest "+s.fest+" \u00B7 quests "+qd+"/4. ";
+    var t,body;
+    if(s.att<75){t="Debarred list!";body=base+"Below the 75% cutoff \u2014 no Sanskriti, straight to the Aurobindo Bhavan notice board. PC Sir wins this round.";}
+    else if(s.cg>=8.2&&s.md>=55&&s.fest>=4&&qd===4){t="The complete JU experience";body=base+"Dean's list grades, pronite memories, all quests done. Milonda is proud. PC Sir is confused but proud.";}
+    else if(s.cg>=8.2){t="Topper, but at what cost";body=base+"Great CGPA, but the campus barely saw you. The jheel misses you. Balance next sem.";}
+    else if(s.fest>=5){t="Sanskriti core committee material";body=base+"You WERE the fest. The backlog can wait. The memories can't.";}
+    else if(s.md>=70){t="Vibes department topper";body=base+"Adda life lived, PC Sir dodged. Academically questionable, spiritually rich.";}
+    else{t="Survived the semester";body=base+"A perfectly average JU sem \u2014 still better than most colleges' best.";}
+    document.getElementById("end-title").textContent=t;
+    document.getElementById("end-body").textContent=body;
+    document.getElementById("endscr").style.display="flex";
+    sync();
+  }
+  function moveNpc(n){
+    var dx=n.tx-n.x,dy=n.ty-n.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<5){n.tx=n.zone[0]+Math.random()*(n.zone[2]-n.zone[0]);n.ty=n.zone[1]+Math.random()*(n.zone[3]-n.zone[1]);}
+    else{n.x+=dx/d*n.sp;n.y+=dy/d*n.sp;}
+    n.el.style.left=n.x+"px";n.el.style.top=n.y+"px";
+  }
+  function hits(n,r){var dx=(px+8)-(n.x+7),dy=(py+11)-(n.y+10);return dx*dx+dy*dy<r*r;}
+  var sc=1;
+  function fit(){sc=stage.clientWidth/VW;stage.style.height=(VH*sc)+"px";}
+  function step(){
+    if(!s.over){
+      var sp=2.6,dx=0,dy=0;
+      if(keys["ArrowUp"]||keys["w"]||touch.up)dy-=sp;
+      if(keys["ArrowDown"]||keys["s"]||touch.down)dy+=sp;
+      if(keys["ArrowLeft"]||keys["a"]||touch.left)dx-=sp;
+      if(keys["ArrowRight"]||keys["d"]||touch.right)dx+=sp;
+      px=clamp(px+dx,4,WW-20);py=clamp(py+dy,4,WH-26);
+      pel.style.left=px+"px";pel.style.top=py+"px";
+      wanderers.forEach(moveNpc);moveNpc(friend);moveNpc(cat);
+      if(!s.inFest){prof.el.style.display="block";moveNpc(prof);mmprof.style.display="block";}
+      else{prof.el.style.display="none";mmprof.style.display="none";}
+      var now=Date.now();
+      var nearSafe=near&&near.safe;
+      if(!s.inFest&&now>profCool&&hits(prof,28)&&!nearSafe){
+        profCool=now+7000;
+        s.att=clamp(s.att-2,0,100);s.md=clamp(s.md-3,0,100);
+        showToast("PC Sir caught you roaming the engineering block during class hours! Attendance -2.");
+        sync();
+      }
+      if(now>friendCool&&hits(friend,22)){
+        friendCool=now+10000;
+        s.md=clamp(s.md+2,0,100);
+        showToast("Batchmate: 'Bro, CF Div 2 tonight. Ratings barbe aaj.' Mood +2.");
+        sync();
+      }
+      if(now>catCool&&hits(cat,18)){
+        catCool=now+10000;
+        s.md=clamp(s.md+3,0,100);
+        showToast("Jheel cat allowed one (1) head boop. Mood +3.");
+        sync();
+      }
+      var found=null;
+      for(var i=0;i<ALL.length;i++){
+        var b=ALL[i];
+        if(px+16>b.x-12&&px<b.x+b.w+12&&py+22>b.y-12&&py<b.y+b.h+12){found=b;break;}
+      }
+      if(found!==near){
+        near=found;
+        if(near){
+          var lbl=s.inFest&&near.festAct?near.festAct:near.act;
+          prompt.textContent="E \u2014 "+lbl+" \u00B7 "+near.name;
+          prompt.style.display="block";
+          prompt.style.left=(near.x+near.w/2)+"px";
+          prompt.style.top=(near.y-26)+"px";
+          prompt.style.transform="translateX(-50%)";
+          act.disabled=false;act.textContent=lbl+" (E)";
+        }else{
+          prompt.style.display="none";act.disabled=true;act.textContent="Action (E)";
+        }
+      }
+      var camX=clamp(px-VW/2,0,WW-VW),camY=clamp(py-VH/2,0,WH-VH);
+      world.style.transform="scale("+sc+") translate("+(-camX)+"px,"+(-camY)+"px)";
+      mmp.style.left=(px*ms)+"px";mmp.style.top=(py*ms)+"px";
+      mmprof.style.left=(prof.x*ms)+"px";mmprof.style.top=(prof.y*ms)+"px";
+    }
+    requestAnimationFrame(step);
+  }
+  document.addEventListener("keydown",function(e){
+    var k=e.key.length===1?e.key.toLowerCase():e.key;
+    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.key)>-1)e.preventDefault();
+    keys[k]=true;
+    if(k==="e")doAction();
+  });
+  document.addEventListener("keyup",function(e){var k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false;});
+  Array.prototype.forEach.call(document.querySelectorAll(".dpad"),function(btn){
+    var d=btn.getAttribute("data-d");
+    btn.addEventListener("pointerdown",function(e){e.preventDefault();touch[d]=true;btn.setPointerCapture(e.pointerId);});
+    btn.addEventListener("pointerup",function(){touch[d]=false;});
+    btn.addEventListener("pointercancel",function(){touch[d]=false;});
+    btn.addEventListener("pointerleave",function(){touch[d]=false;});
+  });
+  act.addEventListener("click",doAction);
+  document.getElementById("restart").addEventListener("click",reset);
+  window.addEventListener("resize",fit);
+  fit();reset();step();
+})();
+</script>
+</body>
+</html>
