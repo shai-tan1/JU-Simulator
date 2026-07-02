@@ -64,6 +64,25 @@
   }
   #actbtn:hover{background:#f7cd6b;}
   .hint{font-size:13px;color:var(--muted);max-width:250px;}
+  .croom-opt{text-align:left;white-space:normal;line-height:1.3;}
+  .looprect{position:relative;width:190px;height:120px;border:4px solid #6E5BA8;border-radius:10px;background:rgba(255,255,255,0.03);transition:box-shadow 0.3s,border-color 0.3s;}
+  .looprect.lit{border-color:#9FE1A0;box-shadow:0 0 18px 5px rgba(159,225,160,0.55);}
+  .lab-ref-box .looprect{width:150px;height:96px;border-color:#8B84B0;}
+  .labslot{position:absolute;background:#241c50;border:2px solid #453A85;border-radius:6px;width:66px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+  .labslot-top{left:50%;top:0;transform:translate(-50%,-50%);}
+  .labslot-bottom{left:50%;bottom:0;transform:translate(-50%,50%);}
+  .labslot-left{left:0;top:50%;transform:translate(-50%,-50%);}
+  .labslot-right{right:0;top:50%;transform:translate(50%,-50%);}
+  .labslot.state-ref{border-color:#8B84B0;}
+  .labslot.state-empty{border-style:dashed;cursor:pointer;}
+  .labslot.state-filled{border-color:#F2C14E;cursor:pointer;}
+  .labslot.state-locked{border-color:#9FE1A0;cursor:default;}
+  .slotlbl{font-size:8px;color:#ddd;letter-spacing:0.3px;}
+  .slotplus{font-size:17px;color:#665A9E;line-height:1;}
+  .labpart{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;}
+  .labpart span{font-size:9px;}
+  .labpart.sel{outline:2px solid var(--accent);outline-offset:1px;}
+  .labpart.used{opacity:0.3;}
   .kbd{
     font-family:"Silkscreen",monospace;font-size:11px;background:var(--panel-2);
     border:1px solid #453A85;border-radius:4px;padding:2px 7px;color:var(--accent);white-space:nowrap;
@@ -120,6 +139,30 @@
         <button id="restart" style="background:#F2C14E;color:#2A1030;border:none;padding:8px 18px;border-radius:8px;font-size:14px;">Play again</button>
       </div>
     </div>
+
+    <div id="classroom" style="position:absolute;inset:0;background:#E8DEB8;z-index:35;display:none;flex-direction:column;">
+      <div id="croom-scene" style="position:relative;flex:1;min-height:0;overflow:hidden;"></div>
+      <div id="croom-quiz" style="flex:0 0 auto;background:rgba(12,10,24,0.94);padding:10px 14px 12px;color:#EFEAF8;"></div>
+    </div>
+
+    <div id="lab" style="position:absolute;inset:0;background:#171233;z-index:36;display:none;flex-direction:column;">
+      <div id="lab-scene" style="position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:6%;padding:36px 14px 10px;">
+        <div style="position:absolute;left:0;top:0;width:100%;padding:6px 10px;background:rgba(12,10,24,0.7);color:#F2C14E;font-family:'Silkscreen',monospace;font-size:11px;letter-spacing:1px;">ELECTRICAL BUILDING &mdash; CIRCUITS LAB &middot; <span id="lab-title2"></span></div>
+        <div class="lab-ref-box" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <div style="font-size:10px;color:#9A93BE;letter-spacing:0.5px;">CIRCUIT DIAGRAM (given)</div>
+          <div id="lab-ref-loop"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <div style="font-size:10px;color:#9A93BE;letter-spacing:0.5px;">YOUR BREADBOARD</div>
+          <div id="lab-work-loop"></div>
+        </div>
+      </div>
+      <div id="lab-panel" style="flex:0 0 auto;background:rgba(12,10,24,0.94);padding:10px 14px 12px;color:#EFEAF8;">
+        <div id="lab-status" style="font-size:11px;color:#F2C14E;margin-bottom:6px;"></div>
+        <div id="lab-palette" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"></div>
+        <button id="lab-test" style="background:var(--accent);color:#2A1030;font-family:'Silkscreen',monospace;font-size:12px;padding:8px 16px;">Test Circuit</button>
+      </div>
+    </div>
   </div>
   </div>
 
@@ -164,6 +207,7 @@
   ];
   var jheel=[662,140,206,104],strip=[884,148,32,100],pond=[612,446,44,38];
   var playgnd=[876,312,228,184],oat=[500,152,150,90];
+  var aahar=[1028,506,84,84];
   var TY={
     aca:{f:"#EFB59F",e:"#B25B41",t:"#6E2E1C"},
     adm:{f:"#E8895C",e:"#9E4E26",t:"#5C2A10"},
@@ -171,25 +215,27 @@
     can:{f:"#E5B356",e:"#9A6F1F",t:"#573D0C"}
   };
   var B=[
-    {x:1150,y:760,w:180,h:92,t:"aca",hero:true,name:"Prayukti Bhavan",safe:true,act:"Attend ETCE class",fx:{att:+6,en:-10,cg:+0.08},msg:"DSP lecture at Prayukti Bhavan attended. PC Sir nodded at you.",festAct:"Volunteer desk",festFx:{mn:+100,md:+6,fest:+1,en:-8},festMsg:"Fest volunteer duty at Prayukti Bhavan. \u20B9100 honorarium plus free snacks.",q:"first"},
+    {x:1150,y:760,w:180,h:92,t:"aca",hero:true,name:"Prayukti Bhavan",safe:true,act:"Enter Classroom",fx:{att:+6,en:-10,cg:+0.08},msg:"DSP lecture at Prayukti Bhavan attended. PC Sir nodded at you.",festAct:"Volunteer desk",festFx:{mn:+100,md:+6,fest:+1,en:-8},festMsg:"Fest volunteer duty at Prayukti Bhavan. \u20B9100 honorarium plus free snacks.",q:"first"},
     {x:1168,y:140,w:130,h:80,t:"aca",name:"Mechanical Building",dept:true,act:"Workshop practical",fx:{cg:+0.1,en:-12},msg:"Fitting job at the Mechanical workshop. Your file work is still crooked."},
     {x:1180,y:260,w:140,h:78,t:"aca",name:"Chemical Building",dept:true,act:"Titration lab",fx:{cg:+0.12,en:-12,md:-3},msg:"Titration at Chemical Building. Endpoint missed twice, dignity thrice."},
     {x:1180,y:360,w:140,h:78,t:"aca",name:"Food Tech Building",dept:true,act:"Taste-testing",fx:{en:+12,md:+10,cg:+0.04},msg:"FTBE friends needed taste-testers. You bravely volunteered. Twice."},
     {x:1180,y:506,w:170,h:84,t:"adm",court:true,name:"Aurobindo Bhavan",act:"Collect scholarship",fx:{mn:+150,md:-8,en:-6},msg:"One hour queue at Aurobindo Bhavan, but the scholarship cleared. \u20B9150 in.",festAct:"Fest pass desk",festFx:{mn:+80,en:-5,fest:+1},festMsg:"Fest pass counter duty at Aurobindo Bhavan. \u20B980 and infinite gossip."},
-    {x:1180,y:620,w:140,h:76,t:"aca",name:"Electrical Building",dept:true,act:"Machines lab",fx:{cg:+0.1,en:-10,md:-2},msg:"Machines lab at Electrical. The transformer hummed. So did you, nervously."},
+    {x:1180,y:620,w:140,h:76,t:"aca",name:"Electrical Building",dept:true,lab:true,act:"Enter Lab",fx:{cg:+0.1,en:-10,md:-2},msg:"Machines lab at Electrical. The transformer hummed. So did you, nervously."},
     {x:724,y:336,w:140,h:86,t:"aca",wing:[724,422,60,40],name:"Central Library",act:"Grind DSA",fx:{cg:+0.22,en:-14,md:-4},msg:"Three hours of segment trees in the Central Library. The AC alone was worth it.",festAct:"Sneak-study",festFx:{cg:+0.12,md:-6,en:-10},festMsg:"Studying during Sanskriti? The librarian respects it. Your friends don't."},
     {x:548,y:336,w:140,h:72,t:"aca",name:"UG Arts Building",act:"Arts adda",fx:{md:+10,en:-4},msg:"Adda with Arts friends. You now hold opinions on three film movements."},
     {x:932,y:150,w:132,h:80,t:"aca",dome:true,name:"Gandhi Bhavan",act:"Attend seminar",fx:{cg:+0.08,md:-4,en:-6},msg:"A two-hour seminar at Gandhi Bhavan. You clapped when others clapped.",festAct:"Fest debate",festFx:{md:+8,fest:+1,en:-6},festMsg:"Fest debate at Gandhi Bhavan. JU debating remains undefeated in chaos."},
     {x:586,y:566,w:128,h:60,t:"aca",name:"Metallurgy Building",dept:true,act:"Furnace lab",fx:{cg:+0.1,en:-12,md:+2},msg:"Watched molten metal pour at Metallurgy. Objectively metal."},
     {x:586,y:646,w:128,h:58,t:"aca",name:"Civil Building",dept:true,act:"Surveying practical",fx:{cg:+0.1,en:-12},msg:"Theodolite survey with Civil folks. You measured the same wall thrice."},
     {x:820,y:600,w:120,h:64,t:"can",name:"Milonda's Canteen",act:"Chaa + toast \u00B7 \u20B930",fx:{en:+16,md:+8,mn:-30},msg:"Cheese toast and lebu chaa at Milonda's. \u20B930 well spent.",festAct:"Fest special \u00B7 \u20B950",festFx:{en:+20,md:+10,mn:-50,fest:+1},festMsg:"Milonda's fest special. Queue was 20 minutes, worth 40.",q:"chaa"},
+    {x:aahar[0],y:aahar[1],w:aahar[2],h:aahar[3],t:"can",name:"Aahar Canteen",act:"Cha + adda \u00B7 \u20B925",fx:{md:+16,en:+10,mn:-25,att:-2},msg:"An hour of pure adda at Aahar over cutting chai. Solved the nation's problems, forgot two assignments.",festAct:"Fest adda circle",festFx:{md:+18,mn:-35,fest:+1},festMsg:"Fest-week adda circle at Aahar, six benches pushed together. Someone's guitar shows up eventually."},
     {x:322,y:330,w:112,h:70,t:"res",name:"Hostel Block",act:"Power nap",fx:{en:+26,md:+4},msg:"Ninety glorious minutes of hostel sleep. The fan even worked.",festAct:"Fest crash",festFx:{en:+30,md:+2},festMsg:"Recharged at the hostel between fest events. Strategic."},
     {x:330,y:430,w:110,h:64,t:"aca",name:"Blue Earth Workshop",act:"Tinker",fx:{cg:+0.06,md:+5,en:-8},msg:"Tinkered at Blue Earth Workshop. Made a thing. It almost works."}
   ];
-  var gzB={x:1042,y:752,w:94,h:80,gz:true,name:"Green Zone",act:"Take tuition",fx:{mn:+200,en:-12,md:-2},msg:"Taught a class 11 kid integration in Green Zone. \u20B9200 earned honestly.",festAct:"Stall hopping",festFx:{md:+10,mn:-40,fest:+1},festMsg:"Fest stalls in Green Zone. Bought a bracelet you'll never wear. \u20B940 gone."};
+  var gzB={x:1024,y:748,w:116,h:100,gz:true,name:"Green Zone",act:"Take tuition",fx:{mn:+200,en:-12,md:-2},msg:"Taught a class 11 kid integration in Green Zone. \u20B9200 earned honestly.",festAct:"Stall hopping",festFx:{md:+10,mn:-40,fest:+1},festMsg:"Fest stalls in Green Zone. Bought a bracelet you'll never wear. \u20B940 gone."};
   var oatB={x:oat[0],y:oat[1],w:oat[2],h:oat[3],oat:true,name:"OAT",act:"Jam at OAT",fx:{md:+18,en:-12,att:-2},msg:"Open mic at OAT. Someone covered Anuv Jain, you screamed every lyric.",festAct:"PRONITE!",festFx:{md:+25,en:-18,fest:+2},festMsg:"PRONITE at OAT. Front row, strangers' shoulders, voice gone by song three."};
   var pgB={x:playgnd[0],y:playgnd[1],w:playgnd[2],h:playgnd[3],field:true,name:"Play Ground",act:"Play a match",fx:{en:-15,md:+14},msg:"Gully cricket on the Play Ground. Run out again, but what a cover drive.",festAct:"Fest football",festFx:{md:+12,en:-12,fest:+1},festMsg:"Inter-dept fest football. ETCE lost, morale somehow won."};
   var jheelB={x:jheel[0],y:jheel[1],w:jheel[2],h:jheel[3],water:true,name:"Jheel Paar",act:"Chill by the jheel",fx:{md:+12,en:+6,att:-3},msg:"Adda at Jheel Paar. A cat adopted your lap for 40 minutes.",festAct:"Fairy-light adda",festFx:{md:+15,en:+5,fest:+1},festMsg:"Jheel Paar under fest fairy lights. Someone brought a guitar. Peak college."};
+  var pondB={x:gzB.x+gzB.w-52,y:gzB.y+gzB.h-46,w:44,h:36,water:true,name:"Green Zone Pond",act:"Take a bath",fx:{en:+18,md:+10,att:-2},msg:"Quick, cold, slightly muddy bath in the Green Zone pond. Somehow the most refreshing part of the day.",festAct:"Splash fight",festFx:{md:+14,en:-4,fest:+1},festMsg:"Fest splash fight at the Green Zone pond. Everyone's clothes are ruined. Worth it."};
   var gates=[
     {x:512,y:805,w:60,h:38,name:"Gate 5",act:"Bhaarer cha \u00B7 \u20B910",fx:{md:+8,en:+6,att:-2,mn:-10},msg:"Bhaarer cha outside Gate 5, Gariahat side. \u20B910 of pure peace."},
     {x:730,y:805,w:60,h:38,name:"Gate 4",act:"Phuchka run \u00B7 \u20B920",fx:{md:+14,en:+4,att:-4,mn:-20},msg:"Sneaked out of Gate 4. Extra jhaal phuchka, zero regrets.",festAct:"Momo run \u00B7 \u20B930",festFx:{md:+12,en:+8,mn:-30,fest:+1},festMsg:"Gate 4 momo run with the whole gang. Fest cardio complete."},
@@ -197,7 +243,7 @@
     {x:1360,y:805,w:60,h:38,name:"Gate 2",act:"Book stall browse",fx:{md:+6,mn:-20},msg:"Second-hand book stall near Gate 2, Garia side. Bought a \u20B920 Feluda you already own."},
     {x:1382,y:440,w:52,h:56,side:true,name:"Gate 1",act:"Station road cha",fx:{md:+7,en:+5,mn:-10},msg:"Cha by Gate 1 on Jadavpur Station Road, watching the local trains pass."}
   ];
-  var ALL=B.concat([gzB,oatB,pgB,jheelB]).concat(gates);
+  var ALL=B.concat([pondB,gzB,oatB,pgB,jheelB]).concat(gates);
   var events=[
     {t:"Surprise quiz in DSP \u2014 CP instincts carried you.",fx:{cg:+0.15}},
     {t:"You won a Codeforces virtual bet. \u20B9100 richer.",fx:{md:+6,mn:+100}},
@@ -205,7 +251,8 @@
     {t:"Hostel mess biryani day. Morale restored.",fx:{md:+8,en:+6}},
     {t:"Senior treated everyone at Milonda's after placement.",fx:{md:+8,en:+8}},
     {t:"Auto from 8B overcharged you. \u20B930 gone.",fx:{mn:-30,md:-3}},
-    {t:"Found \u20B950 in your old jeans. Finance sorted.",fx:{mn:+50,md:+4}}
+    {t:"Found \u20B950 in your old jeans. Finance sorted.",fx:{mn:+50,md:+4}},
+    {t:"Aahar's chai-wallah gave you an extra biscuit on credit.",fx:{md:+4,mn:-5}}
   ];
   var slotT=["9 AM","12 PM","4 PM","8 PM"];
   var clip="polygon("+poly.map(function(p){return p[0]+"px "+p[1]+"px";}).join(",")+")";
@@ -237,7 +284,9 @@
   html+="<div style='width:58%;height:52%;background:#95D473;border:3px solid #F4F4F4;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#5A2410;'>OAT</div></div>";
   html+="<div style='position:absolute;left:"+gzB.x+"px;top:"+gzB.y+"px;width:"+gzB.w+"px;height:"+gzB.h+"px;background:#2F8F4E;border:3px solid #1F6A38;border-radius:10px;'></div>";
   html+="<div style='position:absolute;left:"+(gzB.x+10)+"px;top:"+(gzB.y+8)+"px;font-size:10px;font-weight:500;color:#DFF3E6;'>GREEN<br>ZONE</div>";
-  html+="<div style='position:absolute;left:"+(gzB.x+54)+"px;top:"+(gzB.y+44)+"px;width:28px;height:22px;background:#5FB4E0;border:2px solid #2E7FB0;border-radius:50%;'></div>";
+  html+="<div style='position:absolute;left:"+pondB.x+"px;top:"+pondB.y+"px;width:"+pondB.w+"px;height:"+pondB.h+"px;background:#5FB4E0;border:2px solid #2E7FB0;border-radius:50%;'></div>";
+  html+="<div style='position:absolute;left:"+(pondB.x+8)+"px;top:"+(pondB.y+14)+"px;width:"+(pondB.w-16)+"px;height:2px;background:rgba(255,255,255,0.5);border-radius:2px;'></div>";
+  html+="<div style='position:absolute;left:"+(pondB.x+12)+"px;top:"+(pondB.y+20)+"px;width:"+(pondB.w-24)+"px;height:2px;background:rgba(255,255,255,0.35);border-radius:2px;'></div>";
   function bld(b){
     var c=TY[b.t];
     var bw=b.hero?3:2.5;
@@ -252,6 +301,13 @@
     }
   }
   B.forEach(bld);
+  html+="<div style='position:absolute;left:"+(aahar[0]-6)+"px;top:"+(aahar[1]+aahar[3]+4)+"px;width:"+(aahar[2]+20)+"px;height:13px;background:#8A6136;border:2px solid #5C4420;border-radius:3px;'></div>";
+  [[6,6,"#E8A020"],[30,11,"#0F6E56"],[54,5,"#D8546E"],[76,10,"#4E7BC9"]].forEach(function(seat){
+    html+="<div style='position:absolute;left:"+(aahar[0]+seat[0])+"px;top:"+(aahar[1]+aahar[3]+18+seat[1])+"px;text-align:center;'>";
+    html+="<div style='width:11px;height:11px;background:#E8B88A;border-radius:50%;margin:0 auto;'></div>";
+    html+="<div style='width:14px;height:11px;background:"+seat[2]+";border-radius:2px;margin:1px auto 0;'></div>";
+    html+="</div>";
+  });
   gates.forEach(function(g){
     html+="<div style='position:absolute;left:"+g.x+"px;top:"+g.y+"px;width:"+g.w+"px;height:"+g.h+"px;'>";
     if(g.side){
@@ -334,9 +390,11 @@
   var toast=document.getElementById("toast"),tt=null,prompt=document.getElementById("prompt"),act=document.getElementById("actbtn");
   function clamp(v,a,b){return v<a?a:(v>b?b:v);}
   function reset(){
-    s={att:70,en:80,md:60,cg:7.5,mn:300,slot:0,fest:0,inFest:false,over:false,q1:false,q2:false,q4:false,depts:{}};
+    s={att:70,en:80,md:60,cg:7.5,mn:300,slot:0,fest:0,inFest:false,over:false,inClassroom:false,inLab:false,q1:false,q2:false,q4:false,depts:{}};
     px=1000;py=770;profCool=0;
     document.getElementById("endscr").style.display="none";
+    document.getElementById("classroom").style.display="none";
+    document.getElementById("lab").style.display="none";
     sync();
   }
   function showToast(m){toast.textContent=m;toast.style.display="block";clearTimeout(tt);tt=setTimeout(function(){toast.style.display="none";},3200);}
@@ -381,8 +439,10 @@
     qsync();
   }
   function doAction(){
-    if(!near||s.over)return;
+    if(s.inClassroom||s.inLab||!near||s.over)return;
     var b=near;
+    if(b.hero&&!s.inFest){openClassroom(b);return;}
+    if(b.lab&&!s.inFest){openLab(b);return;}
     var fx=s.inFest&&b.festFx?b.festFx:b.fx;
     var msg=s.inFest&&b.festMsg?b.festMsg:b.msg;
     if(fx.mn&&fx.mn<0&&s.mn<-fx.mn){showToast("Pocket khali! Tuition in Green Zone or scholarship at Aurobindo Bhavan first.");return;}
@@ -391,6 +451,9 @@
     if(b.q==="first")s.q1=true;
     if(b.q==="chaa")s.q2=true;
     if(b.dept)s.depts[b.name]=true;
+    finishInteraction(msg);
+  }
+  function finishInteraction(msg){
     var m=msg;
     if(!s.inFest&&Math.random()<0.28){var e=events[Math.floor(Math.random()*events.length)];apply(e.fx);m+=" Also: "+e.t;}
     s.slot++;
@@ -402,6 +465,257 @@
     showToast(m);
     if(s.slot>=SEM+FEST)endGame();
     sync();
+  }
+  var CQ=[
+    {q:"Ohm's Law relates voltage, current and resistance as:",o:["V = IR","V = I/R","V = I + R","I = VR"],a:0},
+    {q:"The SI unit of electrical resistance is the:",o:["Farad","Ohm","Henry","Weber"],a:1},
+    {q:"In a series circuit, the current through each component is:",o:["Different for each","The same everywhere","Zero always","Only at the source"],a:1},
+    {q:"In a parallel circuit, the voltage across each branch is:",o:["Divided equally","The same as the source","Always zero","Random"],a:1},
+    {q:"A diode conducts current mainly in:",o:["Both directions equally","One direction only","No direction","Only under AC"],a:1},
+    {q:"A capacitor primarily stores energy in a/an:",o:["Magnetic field","Electric field","Chemical bond","Gravitational field"],a:1},
+    {q:"A resistor with bands Brown-Black-Red has a value of:",o:["10 ohm","100 ohm","1 kilo-ohm","10 kilo-ohm"],a:2},
+    {q:"Which component blocks DC but allows AC to pass through?",o:["Resistor","Inductor","Capacitor","Diode"],a:2},
+    {q:"The SI unit of capacitance is the:",o:["Farad","Ohm","Tesla","Coulomb"],a:0},
+    {q:"The most commonly used semiconductor material is:",o:["Copper","Silicon","Aluminium","Iron"],a:1}
+  ];
+  var wrongLines=[
+    "PC Sir raises an eyebrow. \u201cNext time read the notes, at least once.\u201d",
+    "The whole row turns to look at you. PC Sir sighs audibly.",
+    "PC Sir: \u201cThis will definitely come in the viva.\u201d (It won't. Probably.)",
+    "A senior two benches back mutters \u201cbhai...\u201d under their breath."
+  ];
+  var rightLines=[
+    "PC Sir nods, almost impressed.",
+    "Correct! Someone actually attended the last class.",
+    "The person next to you gives a small thumbs up.",
+    "PC Sir: \u201cGood. Next.\u201d"
+  ];
+  var croom={active:false,b:null,qs:[],idx:0,correct:0};
+  function pickQuestions(n){
+    var pool=CQ.slice(),out=[];
+    for(var i=0;i<n&&pool.length;i++){
+      var k=Math.floor(Math.random()*pool.length);
+      out.push(pool[k]);pool.splice(k,1);
+    }
+    return out;
+  }
+  function buildClassroomScene(){
+    var el=document.getElementById("croom-scene");
+    var h="";
+    h+="<div style='position:absolute;left:0;top:0;width:100%;padding:6px 10px;background:rgba(12,10,24,0.7);color:#F2C14E;font-family:\"Silkscreen\",monospace;font-size:11px;letter-spacing:1px;z-index:3;'>PRAYUKTI BHAVAN \u2014 LECTURE HALL</div>";
+    h+="<div style='position:absolute;left:0;top:0;width:100%;height:18%;background:#EDE3B8;border-bottom:3px solid #C9BD8C;'></div>";
+    h+="<div style='position:absolute;left:4%;top:4%;width:14%;height:9%;background:#BEE4F5;border:3px solid #8B7A4E;border-radius:2px;'></div>";
+    h+="<div style='position:absolute;right:4%;top:4%;width:14%;height:9%;background:#BEE4F5;border:3px solid #8B7A4E;border-radius:2px;'></div>";
+    h+="<div style='position:absolute;left:50%;top:5%;transform:translateX(-50%);width:12%;height:11%;background:#6E4A2E;border:3px solid #4A2F1B;border-radius:3px;'></div>";
+    h+="<div style='position:absolute;left:50%;top:16.5%;transform:translateX(-50%);font-size:10px;color:#5C4420;font-weight:600;'>PODIUM</div>";
+    for(var wsy=24;wsy<86;wsy+=20){
+      h+="<div style='position:absolute;left:0;top:"+wsy+"%;width:2.5%;height:11%;background:#BEE4F5;border:2px solid #8B7A4E;'></div>";
+      h+="<div style='position:absolute;right:0;top:"+wsy+"%;width:2.5%;height:11%;background:#BEE4F5;border:2px solid #8B7A4E;'></div>";
+    }
+    var shirt=["#2E5EAA","#C9382E","#E8A020","#3E8E5A","#7B4FA6","#0F6E56","#D8546E","#4E7BC9"];
+    var rows=4,si=0;
+    for(var r=0;r<rows;r++){
+      var topPct=24+r*15;
+      [10,54].forEach(function(leftPct){
+        h+="<div style='position:absolute;left:"+leftPct+"%;top:"+topPct+"%;width:36%;height:6%;background:#8A6136;border:2px solid #5C4420;border-radius:2px;'></div>";
+        var seatTop=topPct+7,seatsPerBench=3;
+        for(var st=0;st<seatsPerBench;st++){
+          si++;
+          if(Math.random()<0.18)continue;
+          var seatLeft=leftPct+2+st*10.5;
+          var col=shirt[si%shirt.length];
+          h+="<div style='position:absolute;left:"+seatLeft+"%;top:"+seatTop+"%;width:5%;text-align:center;'>";
+          h+="<div style='width:16px;height:16px;background:#E8B88A;border-radius:50%;margin:0 auto;'></div>";
+          h+="<div style='width:20px;height:14px;background:"+col+";border-radius:2px;margin:2px auto 0;'></div>";
+          h+="</div>";
+        }
+      });
+    }
+    h+="<div style='position:absolute;left:50%;bottom:2%;transform:translateX(-50%);text-align:center;'>";
+    h+="<div style='width:16px;height:16px;background:#E8B88A;border-radius:50%;margin:0 auto;border:1px solid #B08050;'></div>";
+    h+="<div style='width:20px;height:16px;background:#F2C14E;border-radius:2px;margin:2px auto;border:1px solid #B08820;'></div>";
+    h+="<div style='font-size:9px;color:#3a2f12;margin-top:2px;'>YOU</div>";
+    h+="</div>";
+    el.innerHTML=h;
+  }
+  function openClassroom(b){
+    if(s.en<=8){showToast("Too tired to sit through a lecture. Milonda's, the hostel, or the jheel first.");return;}
+    s.inClassroom=true;
+    croom.active=true;croom.b=b;croom.qs=pickQuestions(4);croom.idx=0;croom.correct=0;
+    buildClassroomScene();
+    renderQuestion();
+    document.getElementById("classroom").style.display="flex";
+  }
+  function renderQuestion(){
+    if(croom.idx>=croom.qs.length){finishClassroom();return;}
+    var q=croom.qs[croom.idx];
+    var panel=document.getElementById("croom-quiz");
+    var h="";
+    h+="<div style='font-size:11px;color:#F2C14E;letter-spacing:0.5px;margin-bottom:6px;'>QUESTION "+(croom.idx+1)+" / "+croom.qs.length+" \u00b7 BASIC ELECTRONICS</div>";
+    h+="<div style='font-size:14px;margin-bottom:10px;'>"+q.q+"</div>";
+    h+="<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;'>";
+    q.o.forEach(function(opt,i){
+      h+="<button class='croom-opt' data-i='"+i+"'>"+opt+"</button>";
+    });
+    h+="</div>";
+    panel.innerHTML=h;
+    Array.prototype.forEach.call(panel.querySelectorAll(".croom-opt"),function(btn){
+      btn.addEventListener("click",function(){answerQuestion(parseInt(this.getAttribute("data-i"),10));});
+    });
+  }
+  function answerQuestion(i){
+    var q=croom.qs[croom.idx];
+    if(i===q.a){
+      croom.correct++;
+      apply({cg:+0.05});
+      showToast(rightLines[Math.floor(Math.random()*rightLines.length)]);
+    }else{
+      apply({att:-2,md:-2});
+      showToast(wrongLines[Math.floor(Math.random()*wrongLines.length)]);
+    }
+    sync();
+    croom.idx++;
+    renderQuestion();
+  }
+  function finishClassroom(){
+    document.getElementById("classroom").style.display="none";
+    s.inClassroom=false;
+    var b=croom.b,total=croom.qs.length,perf=croom.correct+"/"+total;
+    apply({att:b.fx.att,en:b.fx.en});
+    s.q1=true;
+    var msg;
+    if(croom.correct===total)msg="Perfect lecture \u2014 "+perf+" right! PC Sir actually smiled. "+b.msg;
+    else if(croom.correct===0)msg="Rough lecture \u2014 "+perf+". PC Sir made a note of your name. "+b.msg;
+    else msg="Lecture over \u2014 "+perf+" right. "+b.msg;
+    finishInteraction(msg);
+  }
+  var COMP={
+    battery:{label:"Battery",svg:"<svg viewBox='0 0 60 30' width='42' height='22'><line x1='0' y1='15' x2='22' y2='15' stroke='#EFEAF8' stroke-width='2'/><line x1='22' y1='4' x2='22' y2='26' stroke='#F2C14E' stroke-width='4'/><line x1='30' y1='9' x2='30' y2='21' stroke='#F2C14E' stroke-width='2'/><line x1='30' y1='15' x2='60' y2='15' stroke='#EFEAF8' stroke-width='2'/></svg>"},
+    resistor:{label:"Resistor",svg:"<svg viewBox='0 0 60 30' width='42' height='22'><polyline points='0,15 8,15 13,5 21,25 29,5 37,25 45,5 52,15 60,15' stroke='#F2C14E' fill='none' stroke-width='2.5' stroke-linejoin='round'/></svg>"},
+    led:{label:"LED",svg:"<svg viewBox='-8 -10 76 40' width='42' height='22'><line x1='0' y1='15' x2='18' y2='15' stroke='#EFEAF8' stroke-width='2'/><polygon points='18,5 18,25 38,15' fill='#F2C14E' stroke='#EFEAF8' stroke-width='1.5'/><line x1='38' y1='5' x2='38' y2='25' stroke='#EFEAF8' stroke-width='2.5'/><line x1='38' y1='15' x2='60' y2='15' stroke='#EFEAF8' stroke-width='2'/><line x1='42' y1='0' x2='48' y2='-6' stroke='#F2C14E' stroke-width='1.5'/><line x1='48' y1='4' x2='54' y2='-2' stroke='#F2C14E' stroke-width='1.5'/></svg>"},
+    switch:{label:"Switch",svg:"<svg viewBox='0 0 60 30' width='42' height='22'><line x1='0' y1='15' x2='16' y2='15' stroke='#EFEAF8' stroke-width='2'/><circle cx='16' cy='15' r='3' fill='#EFEAF8'/><circle cx='44' cy='15' r='3' fill='#EFEAF8'/><line x1='16' y1='15' x2='40' y2='3' stroke='#9FE1A0' stroke-width='2.5'/><line x1='44' y1='15' x2='60' y2='15' stroke='#EFEAF8' stroke-width='2'/></svg>"},
+    capacitor:{label:"Capacitor",svg:"<svg viewBox='0 0 60 30' width='42' height='22'><line x1='0' y1='15' x2='26' y2='15' stroke='#EFEAF8' stroke-width='2'/><line x1='26' y1='4' x2='26' y2='26' stroke='#4FD8E8' stroke-width='3'/><line x1='34' y1='4' x2='34' y2='26' stroke='#4FD8E8' stroke-width='3'/><line x1='34' y1='15' x2='60' y2='15' stroke='#EFEAF8' stroke-width='2'/></svg>"}
+  };
+  var LAB_TPL=[
+    {name:"LED Indicator Circuit",slots:{top:"battery",right:"switch",bottom:"resistor",left:"led"},distract:["capacitor"]},
+    {name:"Capacitor Charging Circuit",slots:{top:"battery",right:"resistor",bottom:"capacitor",left:"switch"},distract:["led"]},
+    {name:"Photocell Test Rig",slots:{top:"battery",right:"led",bottom:"switch",left:"resistor"},distract:["capacitor"]}
+  ];
+  function shuffle(arr){
+    for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=arr[i];arr[i]=arr[j];arr[j]=t;}
+    return arr;
+  }
+  var lab={active:false,b:null,tpl:null,work:{},used:{},locked:{},selected:null,attempts:0,palette:[]};
+  function loopHTML(map,interactive,locked){
+    var h="<div class='looprect"+(interactive&&lab.won?" lit":"")+"'>";
+    ["top","right","bottom","left"].forEach(function(edge){
+      var type=map[edge];
+      var st=!interactive?"ref":(locked[edge]?"locked":(type?"filled":"empty"));
+      var inner=type?("<div class='slotico'>"+COMP[type].svg+"</div><div class='slotlbl'>"+COMP[type].label+"</div>"):"<div class='slotplus'>+</div>";
+      h+="<div class='labslot labslot-"+edge+" state-"+st+"' data-edge='"+edge+"'>"+inner+"</div>";
+    });
+    h+="</div>";
+    return h;
+  }
+  function renderRef(){document.getElementById("lab-ref-loop").innerHTML=loopHTML(lab.tpl.slots,false,{});}
+  function renderWork(){
+    var el=document.getElementById("lab-work-loop");
+    el.innerHTML=loopHTML(lab.work,true,lab.locked);
+    if(!lab.won){
+      Array.prototype.forEach.call(el.querySelectorAll(".labslot"),function(sl){
+        sl.addEventListener("click",function(){onSlotClick(this.getAttribute("data-edge"));});
+      });
+    }
+  }
+  function renderPalette(){
+    var el=document.getElementById("lab-palette");
+    var h="";
+    lab.palette.forEach(function(type){
+      var usedUp=!!lab.used[type],sel=lab.selected===type;
+      h+="<button class='labpart"+(usedUp?" used":"")+(sel?" sel":"")+"' data-type='"+type+"' "+(usedUp?"disabled":"")+">"+COMP[type].svg+"<span>"+COMP[type].label+"</span></button>";
+    });
+    el.innerHTML=h;
+    Array.prototype.forEach.call(el.querySelectorAll(".labpart"),function(btn){
+      btn.addEventListener("click",function(){selectPart(this.getAttribute("data-type"));});
+    });
+  }
+  function selectPart(type){
+    if(lab.used[type])return;
+    lab.selected=(lab.selected===type)?null:type;
+    renderPalette();
+  }
+  function onSlotClick(edge){
+    if(lab.locked[edge])return;
+    var cur=lab.work[edge];
+    if(cur){
+      delete lab.used[cur];
+      lab.work[edge]=null;
+      renderWork();renderPalette();
+      return;
+    }
+    if(!lab.selected)return;
+    lab.work[edge]=lab.selected;
+    lab.used[lab.selected]=true;
+    lab.selected=null;
+    renderWork();renderPalette();
+  }
+  function openLab(b){
+    if(s.en<=8){showToast("Too tired to focus on live wires. Milonda's, the hostel, or the jheel first.");return;}
+    s.inLab=true;
+    var tpl=LAB_TPL[Math.floor(Math.random()*LAB_TPL.length)];
+    lab.active=true;lab.b=b;lab.tpl=tpl;lab.attempts=0;lab.locked={};lab.won=false;
+    lab.work={top:null,right:null,bottom:null,left:null};
+    lab.used={};lab.selected=null;
+    lab.palette=shuffle(Object.keys(tpl.slots).map(function(e){return tpl.slots[e];}).concat(tpl.distract.slice()));
+    document.getElementById("lab-title2").textContent=tpl.name;
+    renderRef();renderWork();renderPalette();
+    document.getElementById("lab-status").textContent="Attempt 1 of 3 \u2014 pick a part below, then tap a slot on your breadboard.";
+    document.getElementById("lab").style.display="flex";
+  }
+  function testCircuit(){
+    if(!lab.active||lab.won)return;
+    var edges=["top","right","bottom","left"];
+    if(edges.some(function(e){return !lab.work[e];})){showToast("Complete all four connections before testing.");return;}
+    var tpl=lab.tpl,allCorrect=true,correctCount=0;
+    edges.forEach(function(e){
+      if(lab.work[e]===tpl.slots[e]){correctCount++;lab.locked[e]=true;}
+      else allCorrect=false;
+    });
+    lab.attempts++;
+    if(allCorrect){
+      lab.won=true;
+      renderWork();
+      showToast("Circuit powered up! The bench lamp glows green \u2014 PC Sir signs off your lab sheet.");
+      setTimeout(function(){finishLab(true,4);},900);
+    }else if(lab.attempts>=3){
+      showToast("Time's up on this bench \u2014 "+correctCount+"/4 connections were right. PC Sir notes it down and moves you along.");
+      setTimeout(function(){finishLab(false,correctCount);},700);
+    }else{
+      edges.forEach(function(e){
+        if(!lab.locked[e]&&lab.work[e]){delete lab.used[lab.work[e]];lab.work[e]=null;}
+      });
+      apply({att:-2,md:-2});
+      sync();
+      showToast("Short circuit! Sparks, a small yelp, and a lecture on safety goggles. "+correctCount+"/4 correct so far \u2014 fix the rest.");
+      renderWork();renderPalette();
+      document.getElementById("lab-status").textContent="Attempt "+(lab.attempts+1)+" of 3 \u2014 pick a part below, then tap a slot on your breadboard.";
+    }
+  }
+  function finishLab(success,correctCount){
+    document.getElementById("lab").style.display="none";
+    s.inLab=false;lab.active=false;
+    var b=lab.b;
+    s.depts[b.name]=true;
+    apply({en:b.fx.en,md:b.fx.md});
+    var msg;
+    if(success){
+      apply({cg:0.18});
+      msg="Circuit wired correctly in "+lab.attempts+" attempt(s)! "+b.msg;
+    }else{
+      apply({cg:0.04*correctCount});
+      msg="Lab session over \u2014 "+correctCount+"/4 connections right by the end. "+b.msg;
+    }
+    finishInteraction(msg);
   }
   function endGame(){
     s.over=true;
@@ -448,7 +762,7 @@
     if(dy!==0&&pointIn(px+8,clamp(py+dy,4,WH-26)+11)){py=clamp(py+dy,4,WH-26);}
   }
   function step(){
-    if(!s.over){
+    if(!s.over&&!s.inClassroom&&!s.inLab){
       var sp=2.6,dx=0,dy=0;
       if(keys["ArrowUp"]||keys["w"]||touch.up)dy-=sp;
       if(keys["ArrowDown"]||keys["s"]||touch.down)dy+=sp;
@@ -520,6 +834,7 @@
     btn.addEventListener("pointerleave",function(){touch[d]=false;});
   });
   act.addEventListener("click",doAction);
+  document.getElementById("lab-test").addEventListener("click",testCircuit);
   document.getElementById("restart").addEventListener("click",reset);
   window.addEventListener("resize",fit);
   fit();reset();step();
