@@ -44,7 +44,10 @@
     border:4px solid var(--brick-dark);border-radius:10px;background:#B9B29A;
     touch-action:none;
   }
-  #world{position:absolute;top:0;left:0;width:1520px;height:950px;transform-origin:top left;background:#C7C0A6;}
+  #world{position:absolute;top:0;left:0;width:1200px;height:1560px;transform-origin:top left;background:#C7C0A6;}
+  #nightlayer{transition:background 0.6s linear;}
+  .lamp-head{transition:background 0.4s linear,box-shadow 0.4s linear;}
+  .lamp-head.on{background:#FFE9A8 !important;box-shadow:0 0 12px 5px rgba(255,226,150,0.9);}
   .hudpanel{position:absolute;background:rgba(12,10,24,0.85);border-radius:8px;z-index:20;}
   .controls{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;}
   .dgrid{display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:42px 42px;gap:6px;}
@@ -119,12 +122,12 @@
         <div id="h-day" class="hudpanel" style="position:static;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;">Day 1 / 5 &middot; Sem</div>
         <div id="h-clock" class="hudpanel" style="position:static;color:#F2C14E;font-size:11px;padding:4px 8px;border-radius:6px;">9 AM</div>
       </div>
-      <div id="mmap" style="position:relative;width:152px;height:95px;background:#8F8871;border:2px solid rgba(12,10,24,0.85);border-radius:6px;overflow:hidden;"></div>
+      <div id="mmap" style="position:relative;width:108px;height:140px;background:#8F8871;border:2px solid rgba(12,10,24,0.85);border-radius:6px;overflow:hidden;"></div>
       <div id="qpanel" class="hudpanel" style="position:static;padding:6px 9px;max-width:172px;">
         <div style="font-size:10px;color:#F2C14E;letter-spacing:0.5px;margin-bottom:3px;">QUESTS</div>
         <div id="q1" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; First lecture at Prayukti Bhavan</div>
-        <div id="q2" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; Chaa at Milonda's</div>
-        <div id="q3" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; Visit all 6 engg depts (0/6)</div>
+        <div id="q2" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; Chaa at Aahar Canteen</div>
+        <div id="q3" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; Visit all 4 engg depts (0/4)</div>
         <div id="q4" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; Make it to Sanskriti</div>
       </div>
     </div>
@@ -182,14 +185,11 @@
 
 <script>
 (function(){
-  var WW=1520,WH=950,VW=640,VH=400,SEM=20,FEST=4;
+  var WW=1200,WH=1560,VW=640,VH=400,SEM=20,FEST=4,NDEPT=4;
   var world=document.getElementById("world"),stage=document.getElementById("stage"),stagewrap=document.getElementById("stagewrap");
-  var roadY=872;
   var poly=[
-    [350,150],[900,105],[1285,95],[1462,330],[1448,860],
-    [958,860],[958,778],[812,778],[812,860],
-    [718,860],[718,764],[578,764],[578,860],
-    [505,860],[505,590],[330,565],[285,425],[302,262]
+    [90,50],[1110,50],[1160,120],[1160,1430],
+    [1110,1500],[90,1500],[40,1430],[40,120]
   ];
   function pointIn(x,y){
     var inside=false;
@@ -200,14 +200,13 @@
     return inside;
   }
   var paths=[
-    [484,260,660,24],[340,520,804,24],[530,716,870,24],
-    [1120,130,24,610],[460,180,24,364],
-    [530,544,24,261],[746,544,24,261],[992,544,24,261],[1376,740,24,65],
-    [1144,452,238,24]
+    [345,120,26,1300],[830,120,26,1080],[585,1200,26,240],
+    [90,430,1070,26],[90,620,1070,26],[345,925,510,26],
+    [90,1040,1070,26],[90,1200,1070,26],[40,575,310,26]
   ];
-  var jheel=[662,140,206,104],strip=[884,148,32,100],pond=[612,446,44,38];
-  var playgnd=[876,312,228,184],oat=[500,152,150,90];
-  var aahar=[1028,506,84,84];
+  var jheel=[905,495,205,275],playgnd=[380,650,340,255],oat=[775,80,335,225];
+  var bcourt=[380,500,430,110];
+  var aahar=[470,935,120,64];
   var TY={
     aca:{f:"#EFB59F",e:"#B25B41",t:"#6E2E1C"},
     adm:{f:"#E8895C",e:"#9E4E26",t:"#5C2A10"},
@@ -215,41 +214,39 @@
     can:{f:"#E5B356",e:"#9A6F1F",t:"#573D0C"}
   };
   var B=[
-    {x:1150,y:760,w:180,h:92,t:"aca",hero:true,name:"Prayukti Bhavan",safe:true,act:"Enter Classroom",fx:{att:+6,en:-10,cg:+0.08},msg:"DSP lecture at Prayukti Bhavan attended. PC Sir nodded at you.",festAct:"Volunteer desk",festFx:{mn:+100,md:+6,fest:+1,en:-8},festMsg:"Fest volunteer duty at Prayukti Bhavan. \u20B9100 honorarium plus free snacks.",q:"first"},
-    {x:1168,y:140,w:130,h:80,t:"aca",name:"Mechanical Building",dept:true,act:"Workshop practical",fx:{cg:+0.1,en:-12},msg:"Fitting job at the Mechanical workshop. Your file work is still crooked."},
-    {x:1180,y:260,w:140,h:78,t:"aca",name:"Chemical Building",dept:true,act:"Titration lab",fx:{cg:+0.12,en:-12,md:-3},msg:"Titration at Chemical Building. Endpoint missed twice, dignity thrice."},
-    {x:1180,y:360,w:140,h:78,t:"aca",name:"Food Tech Building",dept:true,act:"Taste-testing",fx:{en:+12,md:+10,cg:+0.04},msg:"FTBE friends needed taste-testers. You bravely volunteered. Twice."},
-    {x:1180,y:506,w:170,h:84,t:"adm",court:true,name:"Aurobindo Bhavan",act:"Collect scholarship",fx:{mn:+150,md:-8,en:-6},msg:"One hour queue at Aurobindo Bhavan, but the scholarship cleared. \u20B9150 in.",festAct:"Fest pass desk",festFx:{mn:+80,en:-5,fest:+1},festMsg:"Fest pass counter duty at Aurobindo Bhavan. \u20B980 and infinite gossip."},
-    {x:1180,y:620,w:140,h:76,t:"aca",name:"Electrical Building",dept:true,lab:true,act:"Enter Lab",fx:{cg:+0.1,en:-10,md:-2},msg:"Machines lab at Electrical. The transformer hummed. So did you, nervously."},
-    {x:724,y:336,w:140,h:86,t:"aca",wing:[724,422,60,40],name:"Central Library",act:"Grind DSA",fx:{cg:+0.22,en:-14,md:-4},msg:"Three hours of segment trees in the Central Library. The AC alone was worth it.",festAct:"Sneak-study",festFx:{cg:+0.12,md:-6,en:-10},festMsg:"Studying during Sanskriti? The librarian respects it. Your friends don't."},
-    {x:548,y:336,w:140,h:72,t:"aca",name:"UG Arts Building",act:"Arts adda",fx:{md:+10,en:-4},msg:"Adda with Arts friends. You now hold opinions on three film movements."},
-    {x:932,y:150,w:132,h:80,t:"aca",dome:true,name:"Gandhi Bhavan",act:"Attend seminar",fx:{cg:+0.08,md:-4,en:-6},msg:"A two-hour seminar at Gandhi Bhavan. You clapped when others clapped.",festAct:"Fest debate",festFx:{md:+8,fest:+1,en:-6},festMsg:"Fest debate at Gandhi Bhavan. JU debating remains undefeated in chaos."},
-    {x:586,y:566,w:128,h:60,t:"aca",name:"Metallurgy Building",dept:true,act:"Furnace lab",fx:{cg:+0.1,en:-12,md:+2},msg:"Watched molten metal pour at Metallurgy. Objectively metal."},
-    {x:586,y:646,w:128,h:58,t:"aca",name:"Civil Building",dept:true,act:"Surveying practical",fx:{cg:+0.1,en:-12},msg:"Theodolite survey with Civil folks. You measured the same wall thrice."},
-    {x:820,y:600,w:120,h:64,t:"can",name:"Milonda's Canteen",act:"Chaa + toast \u00B7 \u20B930",fx:{en:+16,md:+8,mn:-30},msg:"Cheese toast and lebu chaa at Milonda's. \u20B930 well spent.",festAct:"Fest special \u00B7 \u20B950",festFx:{en:+20,md:+10,mn:-50,fest:+1},festMsg:"Milonda's fest special. Queue was 20 minutes, worth 40.",q:"chaa"},
-    {x:aahar[0],y:aahar[1],w:aahar[2],h:aahar[3],t:"can",name:"Aahar Canteen",act:"Cha + adda \u00B7 \u20B925",fx:{md:+16,en:+10,mn:-25,att:-2},msg:"An hour of pure adda at Aahar over cutting chai. Solved the nation's problems, forgot two assignments.",festAct:"Fest adda circle",festFx:{md:+18,mn:-35,fest:+1},festMsg:"Fest-week adda circle at Aahar, six benches pushed together. Someone's guitar shows up eventually."},
-    {x:322,y:330,w:112,h:70,t:"res",name:"Hostel Block",act:"Power nap",fx:{en:+26,md:+4},msg:"Ninety glorious minutes of hostel sleep. The fan even worked.",festAct:"Fest crash",festFx:{en:+30,md:+2},festMsg:"Recharged at the hostel between fest events. Strategic."},
-    {x:330,y:430,w:110,h:64,t:"aca",name:"Blue Earth Workshop",act:"Tinker",fx:{cg:+0.06,md:+5,en:-8},msg:"Tinkered at Blue Earth Workshop. Made a thing. It almost works."}
+    {x:90,y:150,w:170,h:250,t:"adm",name:"Tequip Building",act:"Innovation cell",fx:{cg:+0.06,md:+4,en:-6},msg:"Tinkered at the TEQIP innovation cell. Half a prototype, full enthusiasm."},
+    {x:430,y:90,w:250,h:150,t:"aca",name:"Central Library",act:"Grind DSA",fx:{cg:+0.22,en:-14,md:-4},msg:"Three hours of segment trees in the Central Library. The AC alone was worth it.",festAct:"Sneak-study",festFx:{cg:+0.12,md:-6,en:-10},festMsg:"Studying during Sanskriti? The librarian respects it. Your friends don't."},
+    {x:430,y:300,w:250,h:160,t:"adm",name:"Triguna Sen Auditorium",act:"Catch a show",fx:{md:+12,en:-4},msg:"A student production at Triguna Sen. You clapped, you cried, you queued for samosas.",festAct:"Cultural nite",festFx:{md:+16,fest:+1,en:-8},festMsg:"Sanskriti cultural night at Triguna Sen. Every seat full, every heart fuller."},
+    {x:770,y:360,w:340,h:100,t:"res",name:"Hostel",act:"Power nap",fx:{en:+26,md:+4},msg:"Ninety glorious minutes of hostel sleep. The fan even worked.",festAct:"Fest crash",festFx:{en:+30,md:+2},festMsg:"Recharged at the hostel between fest events. Strategic."},
+    {x:90,y:680,w:200,h:120,t:"aca",name:"Workshop",act:"Tinker",fx:{cg:+0.06,md:+5,en:-8},msg:"Tinkered at the Workshop. Made a thing. It almost works."},
+    {x:90,y:860,w:230,h:180,t:"aca",hero:true,name:"Prayukti Bhavan",safe:true,act:"Enter Classroom",fx:{att:+6,en:-10,cg:+0.08},msg:"DSP lecture at Prayukti Bhavan (Civil + CSE + ETCE) attended. PC Sir nodded at you.",festAct:"Volunteer desk",festFx:{mn:+100,md:+6,fest:+1,en:-8},festMsg:"Fest volunteer duty at Prayukti Bhavan. \u20B9100 honorarium plus free snacks.",q:"first"},
+    {x:aahar[0],y:aahar[1],w:aahar[2],h:aahar[3],t:"can",name:"Aahar Canteen",act:"Cha + adda \u00B7 \u20B925",fx:{md:+16,en:+10,mn:-25,att:-2},msg:"An hour of pure adda at Aahar over cutting chai. Solved the nation's problems, forgot two assignments.",festAct:"Fest adda circle",festFx:{md:+18,mn:-35,fest:+1},festMsg:"Fest-week adda circle at Aahar, six benches pushed together. Someone's guitar shows up eventually.",q:"chaa"},
+    {x:900,y:820,w:210,h:100,t:"aca",name:"Mechanical Dept",dept:true,act:"Workshop practical",fx:{cg:+0.1,en:-12},msg:"Fitting job at the Mechanical workshop. Your file work is still crooked."},
+    {x:90,y:1090,w:230,h:100,t:"aca",name:"Electrical Engg Building",dept:true,lab:true,act:"Enter Lab",fx:{cg:+0.1,en:-10,md:-2},msg:"Machines lab at Electrical. The transformer hummed. So did you, nervously."},
+    {x:430,y:1080,w:300,h:100,t:"adm",court:true,name:"Aurobindo Bhavan",act:"Collect scholarship",fx:{mn:+150,md:-8,en:-6},msg:"One hour queue at Aurobindo Bhavan, but the scholarship cleared. \u20B9150 in.",festAct:"Fest pass desk",festFx:{mn:+80,en:-5,fest:+1},festMsg:"Fest pass counter duty at Aurobindo Bhavan. \u20B980 and infinite gossip."},
+    {x:780,y:1080,w:110,h:100,t:"aca",name:"Chemical Dept",dept:true,act:"Titration lab",fx:{cg:+0.12,en:-12,md:-3},msg:"Titration at Chemical Dept. Endpoint missed twice, dignity thrice."},
+    {x:930,y:1080,w:180,h:100,t:"aca",name:"Food & Biotech Dept",dept:true,act:"Taste-testing",fx:{en:+12,md:+10,cg:+0.04},msg:"FTBE friends needed taste-testers. You bravely volunteered. Twice."},
+    {x:140,y:1300,w:200,h:80,t:"can",name:"CET Canteen",act:"Cha + toast \u00B7 \u20B930",fx:{en:+16,md:+8,mn:-30},msg:"Cheese toast and lebu chaa at CET Canteen. \u20B930 well spent.",festAct:"Fest special \u00B7 \u20B950",festFx:{en:+20,md:+10,mn:-50,fest:+1},festMsg:"CET Canteen fest special. Queue was 20 minutes, worth 40."},
+    {x:760,y:1290,w:280,h:90,t:"aca",name:"Chemical Dept Annexe",act:"Store room",fx:{cg:+0.04,en:-6},msg:"Dug through the Chemical Dept annexe store room. Found glassware older than you."}
   ];
-  var gzB={x:1024,y:748,w:116,h:100,gz:true,name:"Green Zone",act:"Take tuition",fx:{mn:+200,en:-12,md:-2},msg:"Taught a class 11 kid integration in Green Zone. \u20B9200 earned honestly.",festAct:"Stall hopping",festFx:{md:+10,mn:-40,fest:+1},festMsg:"Fest stalls in Green Zone. Bought a bracelet you'll never wear. \u20B940 gone."};
+  var bcB={x:bcourt[0],y:bcourt[1],w:bcourt[2],h:bcourt[3],bcourt:true,name:"Basketball Court",act:"Shoot hoops",fx:{en:-12,md:+14},msg:"Half-court pickup at the Basketball Court. Airballed twice, buzzer-beat once.",festAct:"3v3 fest tourney",festFx:{md:+16,en:-14,fest:+1},festMsg:"Fest 3v3 tournament on the Basketball Court. ETCE bench went feral."};
+  var gzB={x:90,y:470,w:200,h:150,gz:true,name:"Green Zone",act:"Take tuition",fx:{mn:+200,en:-12,md:-2},msg:"Taught a class 11 kid integration in Green Zone. \u20B9200 earned honestly.",festAct:"Stall hopping",festFx:{md:+10,mn:-40,fest:+1},festMsg:"Fest stalls in Green Zone. Bought a bracelet you'll never wear. \u20B940 gone."};
   var oatB={x:oat[0],y:oat[1],w:oat[2],h:oat[3],oat:true,name:"OAT",act:"Jam at OAT",fx:{md:+18,en:-12,att:-2},msg:"Open mic at OAT. Someone covered Anuv Jain, you screamed every lyric.",festAct:"PRONITE!",festFx:{md:+25,en:-18,fest:+2},festMsg:"PRONITE at OAT. Front row, strangers' shoulders, voice gone by song three."};
-  var pgB={x:playgnd[0],y:playgnd[1],w:playgnd[2],h:playgnd[3],field:true,name:"Play Ground",act:"Play a match",fx:{en:-15,md:+14},msg:"Gully cricket on the Play Ground. Run out again, but what a cover drive.",festAct:"Fest football",festFx:{md:+12,en:-12,fest:+1},festMsg:"Inter-dept fest football. ETCE lost, morale somehow won."};
+  var pgB={x:playgnd[0],y:playgnd[1],w:playgnd[2],h:playgnd[3],field:true,name:"JU Playground",act:"Play a match",fx:{en:-15,md:+14},msg:"Gully cricket on the JU Playground. Run out again, but what a cover drive.",festAct:"Fest football",festFx:{md:+12,en:-12,fest:+1},festMsg:"Inter-dept fest football. ETCE lost, morale somehow won."};
   var jheelB={x:jheel[0],y:jheel[1],w:jheel[2],h:jheel[3],water:true,name:"Jheel Paar",act:"Chill by the jheel",fx:{md:+12,en:+6,att:-3},msg:"Adda at Jheel Paar. A cat adopted your lap for 40 minutes.",festAct:"Fairy-light adda",festFx:{md:+15,en:+5,fest:+1},festMsg:"Jheel Paar under fest fairy lights. Someone brought a guitar. Peak college."};
-  var pondB={x:gzB.x+gzB.w-52,y:gzB.y+gzB.h-46,w:44,h:36,water:true,name:"Green Zone Pond",act:"Take a bath",fx:{en:+18,md:+10,att:-2},msg:"Quick, cold, slightly muddy bath in the Green Zone pond. Somehow the most refreshing part of the day.",festAct:"Splash fight",festFx:{md:+14,en:-4,fest:+1},festMsg:"Fest splash fight at the Green Zone pond. Everyone's clothes are ruined. Worth it."};
+  var pondB={x:gzB.x+gzB.w-56,y:gzB.y+gzB.h-46,w:46,h:36,water:true,name:"Green Zone Pond",act:"Take a bath",fx:{en:+18,md:+10,att:-2},msg:"Quick, cold, slightly muddy bath in the Green Zone pond. Somehow the most refreshing part of the day.",festAct:"Splash fight",festFx:{md:+14,en:-4,fest:+1},festMsg:"Fest splash fight at the Green Zone pond. Everyone's clothes are ruined. Worth it."};
   var gates=[
-    {x:512,y:805,w:60,h:38,name:"Gate 5",act:"Bhaarer cha \u00B7 \u20B910",fx:{md:+8,en:+6,att:-2,mn:-10},msg:"Bhaarer cha outside Gate 5, Gariahat side. \u20B910 of pure peace."},
-    {x:730,y:805,w:60,h:38,name:"Gate 4",act:"Phuchka run \u00B7 \u20B920",fx:{md:+14,en:+4,att:-4,mn:-20},msg:"Sneaked out of Gate 4. Extra jhaal phuchka, zero regrets.",festAct:"Momo run \u00B7 \u20B930",festFx:{md:+12,en:+8,mn:-30,fest:+1},festMsg:"Gate 4 momo run with the whole gang. Fest cardio complete."},
-    {x:975,y:805,w:60,h:38,name:"Gate 3",act:"Roll run \u00B7 \u20B940",fx:{en:+12,md:+8,mn:-40,att:-3},msg:"Egg roll outside Gate 3. Extra chilli, extra life."},
-    {x:1360,y:805,w:60,h:38,name:"Gate 2",act:"Book stall browse",fx:{md:+6,mn:-20},msg:"Second-hand book stall near Gate 2, Garia side. Bought a \u20B920 Feluda you already own."},
-    {x:1382,y:440,w:52,h:56,side:true,name:"Gate 1",act:"Station road cha",fx:{md:+7,en:+5,mn:-10},msg:"Cha by Gate 1 on Jadavpur Station Road, watching the local trains pass."}
+    {x:560,y:1420,w:90,h:44,name:"Gate 1",act:"Station road cha \u00B7 \u20B910",fx:{md:+7,en:+5,mn:-10,att:-2},msg:"Cha by Gate 1 on Jadavpur Station Road, watching the local trains pass."},
+    {x:56,y:1200,w:44,h:80,side:true,name:"Gate 2",act:"Book stall browse",fx:{md:+6,mn:-20},msg:"Second-hand book stall near Gate 2, Garia side. Bought a \u20B920 Feluda you already own."},
+    {x:56,y:560,w:44,h:80,side:true,name:"Gate 3",act:"Egg roll run \u00B7 \u20B940",fx:{en:+12,md:+8,mn:-40,att:-3},msg:"Egg roll outside Gate 3. Extra chilli, extra life."}
   ];
-  var ALL=B.concat([pondB,gzB,oatB,pgB,jheelB]).concat(gates);
+  var ALL=B.concat([pondB,gzB,oatB,pgB,jheelB,bcB]).concat(gates);
   var events=[
     {t:"Surprise quiz in DSP \u2014 CP instincts carried you.",fx:{cg:+0.15}},
     {t:"You won a Codeforces virtual bet. \u20B9100 richer.",fx:{md:+6,mn:+100}},
     {t:"Kalboishakhi rain across campus. Drenched but alive.",fx:{en:-6,md:+4}},
     {t:"Hostel mess biryani day. Morale restored.",fx:{md:+8,en:+6}},
-    {t:"Senior treated everyone at Milonda's after placement.",fx:{md:+8,en:+8}},
+    {t:"Senior treated everyone at Aahar after placement.",fx:{md:+8,en:+8}},
     {t:"Auto from 8B overcharged you. \u20B930 gone.",fx:{mn:-30,md:-3}},
     {t:"Found \u20B950 in your old jeans. Finance sorted.",fx:{mn:+50,md:+4}},
     {t:"Aahar's chai-wallah gave you an extra biscuit on credit.",fx:{md:+4,mn:-5}}
@@ -259,34 +256,37 @@
   var html="";
   html+="<div style='position:absolute;inset:0;background:#7CC262;clip-path:"+clip+";'></div>";
   html+="<div style='position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,0,0,0.04) 39px,rgba(0,0,0,0.04) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,0,0,0.04) 39px,rgba(0,0,0,0.04) 40px);clip-path:"+clip+";'></div>";
-  html+="<div style='position:absolute;left:0;top:"+roadY+"px;width:"+WW+"px;height:78px;background:#4A4A4A;border-top:4px solid #6b6b6b;'></div>";
-  html+="<div style='position:absolute;left:0;top:"+(roadY+34)+"px;width:"+WW+"px;height:5px;background:repeating-linear-gradient(90deg,#E8E8E8 0 40px,transparent 40px 80px);'></div>";
-  html+="<div style='position:absolute;left:560px;top:"+(roadY+48)+"px;font-size:14px;color:#ddd;letter-spacing:3px;'>RAJA S.C. MALLICK ROAD</div>";
-  html+="<div style='position:absolute;left:16px;top:"+(roadY+10)+"px;font-size:12px;color:#bbb;'>&larr; TO GARIAHAT</div>";
-  html+="<div style='position:absolute;right:16px;top:"+(roadY+10)+"px;font-size:12px;color:#bbb;'>TO GARIA &rarr;</div>";
-  html+="<div style='position:absolute;left:1285px;top:70px;width:300px;height:52px;background:#4A4A4A;transform:rotate(53deg);transform-origin:top left;'></div>";
-  html+="<div style='position:absolute;left:1466px;top:335px;width:54px;height:537px;background:#4A4A4A;'></div>";
-  html+="<div style='position:absolute;left:1484px;top:430px;font-size:12px;color:#ddd;letter-spacing:2px;writing-mode:vertical-rl;'>JADAVPUR STATION ROAD</div>";
-  html+="<div style='position:absolute;left:582px;top:772px;width:132px;height:86px;background:#F2EFE4;border:2px solid #9a947e;border-radius:3px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;color:#555;line-height:1.3;padding:4px;'>P.C. ROY<br>POLYTECHNIC</div>";
-  html+="<div style='position:absolute;left:816px;top:782px;width:138px;height:74px;background:#F2EFE4;border:2px solid #9a947e;border-radius:3px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;color:#555;line-height:1.3;padding:4px;'>NCE BENGAL<br>JADAVPUR VIDYAPITH</div>";
-  html+="<div style='position:absolute;left:300px;top:625px;width:185px;height:135px;background:#F2EFE4;border:2px solid #9a947e;border-radius:3px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;color:#555;line-height:1.4;padding:6px;'>CENTRAL GLASS &amp;<br>CERAMIC RESEARCH<br>INSTITUTE</div>";
   paths.forEach(function(p){
-    html+="<div style='position:absolute;left:"+p[0]+"px;top:"+p[1]+"px;width:"+p[2]+"px;height:"+p[3]+"px;background:#DCC994;border:2px solid #C4AF74;'></div>";
+    html+="<div style='position:absolute;left:"+p[0]+"px;top:"+p[1]+"px;width:"+p[2]+"px;height:"+p[3]+"px;background:#8C5BB0;border:2px solid #6E3F92;border-radius:4px;'></div>";
   });
+  html+="<div style='position:absolute;left:"+bcourt[0]+"px;top:"+bcourt[1]+"px;width:"+bcourt[2]+"px;height:"+bcourt[3]+"px;background:#2F8F4E;border:3px solid #1F6A38;border-radius:8px;'></div>";
+  html+="<div style='position:absolute;left:"+(bcourt[0]+bcourt[2]/2-1)+"px;top:"+(bcourt[1]+8)+"px;width:2px;height:"+(bcourt[3]-16)+"px;background:rgba(255,255,255,0.7);'></div>";
+  html+="<div style='position:absolute;left:"+(bcourt[0]+bcourt[2]/2-22)+"px;top:"+(bcourt[1]+bcourt[3]/2-22)+"px;width:44px;height:44px;border:2px solid rgba(255,255,255,0.7);border-radius:50%;'></div>";
+  html+="<div style='position:absolute;left:"+(bcourt[0]+8)+"px;top:"+(bcourt[1]+6)+"px;font-size:10px;font-weight:500;color:#EAFBEF;'>BASKETBALL COURT</div>";
   html+="<div style='position:absolute;left:"+playgnd[0]+"px;top:"+playgnd[1]+"px;width:"+playgnd[2]+"px;height:"+playgnd[3]+"px;background:#95D473;border:3px solid #6FAE50;border-radius:10px;'></div>";
   html+="<div style='position:absolute;left:"+(playgnd[0]+34)+"px;top:"+(playgnd[1]+32)+"px;width:"+(playgnd[2]-68)+"px;height:"+(playgnd[3]-64)+"px;border:3px solid #F4F4F4;border-radius:50%;'></div>";
-  html+="<div style='position:absolute;left:"+(playgnd[0]+8)+"px;top:"+(playgnd[1]+5)+"px;font-size:11px;font-weight:500;color:#2F5E1E;'>PLAY GROUND</div>";
-  html+="<div style='position:absolute;left:"+jheel[0]+"px;top:"+jheel[1]+"px;width:"+jheel[2]+"px;height:"+jheel[3]+"px;background:#5FB4E0;border:3px solid #2E7FB0;border-radius:46% 54% 58% 42%;'></div>";
-  html+="<div style='position:absolute;left:"+(jheel[0]+jheel[2]/2-36)+"px;top:"+(jheel[1]+jheel[3]/2-8)+"px;font-size:12px;font-weight:500;color:#0C3B5C;'>Jheel Paar</div>";
-  html+="<div style='position:absolute;left:"+strip[0]+"px;top:"+strip[1]+"px;width:"+strip[2]+"px;height:"+strip[3]+"px;background:#5FB4E0;border:3px solid #2E7FB0;border-radius:14px;'></div>";
-  html+="<div style='position:absolute;left:"+pond[0]+"px;top:"+pond[1]+"px;width:"+pond[2]+"px;height:"+pond[3]+"px;background:#5FB4E0;border:3px solid #2E7FB0;border-radius:50%;'></div>";
+  html+="<div style='position:absolute;left:"+(playgnd[0]+8)+"px;top:"+(playgnd[1]+5)+"px;font-size:11px;font-weight:500;color:#2F5E1E;'>JU PLAYGROUND</div>";
+  html+="<div style='position:absolute;left:"+jheel[0]+"px;top:"+jheel[1]+"px;width:"+jheel[2]+"px;height:"+jheel[3]+"px;background:#2C7CA8;border:3px solid #1C567A;border-radius:46% 54% 58% 42%;'></div>";
+  html+="<div style='position:absolute;left:"+(jheel[0]+jheel[2]/2-30)+"px;top:"+(jheel[1]+jheel[3]/2-8)+"px;font-size:12px;font-weight:500;color:#DCEFF8;'>Jheel Paar</div>";
   html+="<div style='position:absolute;left:"+oat[0]+"px;top:"+oat[1]+"px;width:"+oat[2]+"px;height:"+oat[3]+"px;background:#D85A30;border:3px solid #993C1D;border-radius:50%;display:flex;align-items:center;justify-content:center;'>";
-  html+="<div style='width:58%;height:52%;background:#95D473;border:3px solid #F4F4F4;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#5A2410;'>OAT</div></div>";
+  html+="<div style='width:58%;height:52%;background:#95D473;border:3px solid #F4F4F4;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#5A2410;'>OAT</div></div>";
   html+="<div style='position:absolute;left:"+gzB.x+"px;top:"+gzB.y+"px;width:"+gzB.w+"px;height:"+gzB.h+"px;background:#2F8F4E;border:3px solid #1F6A38;border-radius:10px;'></div>";
   html+="<div style='position:absolute;left:"+(gzB.x+10)+"px;top:"+(gzB.y+8)+"px;font-size:10px;font-weight:500;color:#DFF3E6;'>GREEN<br>ZONE</div>";
   html+="<div style='position:absolute;left:"+pondB.x+"px;top:"+pondB.y+"px;width:"+pondB.w+"px;height:"+pondB.h+"px;background:#5FB4E0;border:2px solid #2E7FB0;border-radius:50%;'></div>";
   html+="<div style='position:absolute;left:"+(pondB.x+8)+"px;top:"+(pondB.y+14)+"px;width:"+(pondB.w-16)+"px;height:2px;background:rgba(255,255,255,0.5);border-radius:2px;'></div>";
   html+="<div style='position:absolute;left:"+(pondB.x+12)+"px;top:"+(pondB.y+20)+"px;width:"+(pondB.w-24)+"px;height:2px;background:rgba(255,255,255,0.35);border-radius:2px;'></div>";
+  var lampPts=[];
+  paths.forEach(function(p){
+    if(p[2]>=p[3]){for(var lx=p[0]+40;lx<p[0]+p[2]-20;lx+=170)lampPts.push([lx,p[1]-16]);}
+    else{for(var ly=p[1]+40;ly<p[1]+p[3]-20;ly+=170)lampPts.push([p[0]-14,ly]);}
+  });
+  lampPts.forEach(function(L){
+    html+="<div style='position:absolute;left:"+L[0]+"px;top:"+L[1]+"px;width:8px;height:30px;z-index:10;'>";
+    html+="<div style='width:3px;height:24px;background:#33313a;margin:0 auto;border-radius:1px;'></div>";
+    html+="<div class='lamp-head' style='position:absolute;left:50%;top:-2px;transform:translateX(-50%);width:10px;height:8px;background:#5A5238;border-radius:3px;'></div>";
+    html+="</div>";
+  });
+  html+="<div id='nightlayer' style='position:absolute;inset:0;z-index:8;pointer-events:none;background:transparent;clip-path:"+clip+";'></div>";
   function bld(b){
     var c=TY[b.t];
     var bw=b.hero?3:2.5;
@@ -320,28 +320,24 @@
     html+="<div style='position:absolute;left:-10px;top:-14px;width:"+(g.w+20)+"px;text-align:center;font-size:11px;font-weight:500;color:#FFF;background:rgba(42,16,48,0.85);border-radius:3px;padding:1px 0;'>"+g.name+"</div>";
     html+="</div>";
   });
-  html+="<div style='position:absolute;left:990px;top:748px;z-index:3;text-align:center;'><div style='width:10px;height:10px;background:#E22;border:2px solid #fff;border-radius:50%;margin:0 auto;'></div><div style='font-size:9px;font-weight:700;color:#C11;letter-spacing:0.5px;'>YOU ARE<br>HERE</div></div>";
+  html+="<div style='position:absolute;left:598px;top:1372px;z-index:3;text-align:center;'><div style='width:10px;height:10px;background:#E22;border:2px solid #fff;border-radius:50%;margin:0 auto;'></div><div style='font-size:9px;font-weight:700;color:#C11;letter-spacing:0.5px;'>YOU ARE<br>HERE</div></div>";
   var obst=[];
   ALL.forEach(function(b){obst.push([b.x-12,b.y-18,b.w+24,b.h+30]);});
   paths.forEach(function(p){obst.push([p[0]-10,p[1]-10,p[2]+20,p[3]+20]);});
-  [jheel,strip,pond,playgnd,oat].forEach(function(r){obst.push([r[0]-10,r[1]-10,r[2]+20,r[3]+20]);});
-  obst.push([0,roadY-14,WW,120]);
-  obst.push([578,750,140,120]);
-  obst.push([812,765,146,105]);
-  obst.push([290,610,205,160]);
+  [jheel,playgnd,oat,bcourt].forEach(function(r){obst.push([r[0]-10,r[1]-10,r[2]+20,r[3]+20]);});
   function free(x,y){for(var i=0;i<obst.length;i++){var o=obst[i];if(x>o[0]&&x<o[0]+o[2]&&y>o[1]&&y<o[1]+o[3])return false;}return true;}
   var placed=0,tries=0;
-  while(placed<58&&tries<1400){
+  while(placed<72&&tries<2000){
     tries++;
-    var tx=20+Math.random()*(WW-80),ty=20+Math.random()*(roadY-90);
+    var tx=50+Math.random()*(WW-120),ty=60+Math.random()*(WH-140);
     if(!pointIn(tx+13,ty+18)||!free(tx,ty)||!free(tx+26,ty+34))continue;
     placed++;
     html+="<div style='position:absolute;left:"+tx+"px;top:"+ty+"px;width:28px;height:36px;'><div style='width:26px;height:26px;background:#2E8B32;border:3px solid #226B27;border-radius:9px;'></div><div style='width:7px;height:9px;background:#6B4423;margin:-2px auto 0;'></div></div>";
   }
   placed=0;tries=0;
-  while(placed<12&&tries<600){
+  while(placed<18&&tries<900){
     tries++;
-    var fx2=20+Math.random()*(WW-80),fy2=20+Math.random()*(roadY-90);
+    var fx2=50+Math.random()*(WW-120),fy2=60+Math.random()*(WH-140);
     if(!pointIn(fx2+10,fy2+8)||!free(fx2,fy2))continue;
     placed++;
     html+="<div style='position:absolute;left:"+fx2+"px;top:"+fy2+"px;width:22px;height:16px;'><span style='position:absolute;left:0;top:2px;width:4px;height:4px;background:#F2C14E;border-radius:50%;'></span><span style='position:absolute;left:9px;top:8px;width:4px;height:4px;background:#F08FB8;border-radius:50%;'></span><span style='position:absolute;left:16px;top:0;width:4px;height:4px;background:#F2C14E;border-radius:50%;'></span></div>";
@@ -357,26 +353,27 @@
   var shirt=["#2E5EAA","#C9382E","#E8A020","#3E8E5A","#7B4FA6"];
   var wanderers=[];
   for(var wi=0;wi<5;wi++){
-    wanderers.push({el:mkNpc(shirt[wi],4),x:600+Math.random()*500,y:250+Math.random()*400,tx:0,ty:0,sp:0.55+Math.random()*0.4,zone:[500,150,1350,700]});
+    wanderers.push({el:mkNpc(shirt[wi],4),x:300+Math.random()*600,y:300+Math.random()*800,tx:0,ty:0,sp:0.55+Math.random()*0.4,zone:[150,300,1050,1350]});
   }
-  var prof={el:mkNpc("#111",7),x:1230,y:300,tx:1230,ty:300,sp:1.15,zone:[1150,120,1420,700]};
+  var prof={el:mkNpc("#111",7),x:700,y:1120,tx:700,ty:1120,sp:1.15,zone:[120,760,1120,1420]};
   prof.el.firstChild.style.background="#D8A070";
-  var cat={el:null,x:760,y:200,tx:760,ty:200,sp:0.6,zone:[640,130,900,255]};
+  var cat={el:null,x:990,y:600,tx:990,ty:600,sp:0.6,zone:[905,495,1110,770]};
   var cd=document.createElement("div");
   cd.style.cssText="position:absolute;width:12px;height:10px;background:#854F0B;border-radius:4px;z-index:4;";
   world.appendChild(cd);cat.el=cd;
-  var friend={el:mkNpc("#0F6E56",5),x:700,y:480,tx:700,ty:480,sp:0.8,zone:[380,180,1380,780]};
+  var friend={el:mkNpc("#0F6E56",5),x:500,y:700,tx:500,ty:700,sp:0.8,zone:[200,400,1050,1350]};
   var pel=document.createElement("div");
   pel.style.cssText="position:absolute;width:16px;height:22px;z-index:9;";
   pel.innerHTML="<div style='width:10px;height:10px;background:#E8B88A;border-radius:50%;margin:0 auto;border:1px solid #B08050;'></div><div style='width:14px;height:11px;background:#F2C14E;border-radius:2px;margin:0 auto;border:1px solid #B08820;'></div>";
   world.appendChild(pel);
-  var mm=document.getElementById("mmap"),ms=152/WW;
+  var mm=document.getElementById("mmap"),ms=108/WW;
   var mclip="polygon("+poly.map(function(p){return (p[0]*ms).toFixed(1)+"px "+(p[1]*ms).toFixed(1)+"px";}).join(",")+")";
   var mh="";
   mh+="<div style='position:absolute;inset:0;background:#4C8A44;clip-path:"+mclip+";'></div>";
-  mh+="<div style='position:absolute;left:0;top:"+(roadY*ms)+"px;width:152px;height:6px;background:#555;'></div>";
+  paths.forEach(function(p){mh+="<div style='position:absolute;left:"+(p[0]*ms)+"px;top:"+(p[1]*ms)+"px;width:"+Math.max(1,p[2]*ms)+"px;height:"+Math.max(1,p[3]*ms)+"px;background:#8C5BB0;'></div>";});
   mh+="<div style='position:absolute;left:"+(playgnd[0]*ms)+"px;top:"+(playgnd[1]*ms)+"px;width:"+(playgnd[2]*ms)+"px;height:"+(playgnd[3]*ms)+"px;background:#95D473;border-radius:2px;'></div>";
-  mh+="<div style='position:absolute;left:"+(jheel[0]*ms)+"px;top:"+(jheel[1]*ms)+"px;width:"+(jheel[2]*ms)+"px;height:"+(jheel[3]*ms)+"px;background:#5FB4E0;border-radius:50%;'></div>";
+  mh+="<div style='position:absolute;left:"+(bcourt[0]*ms)+"px;top:"+(bcourt[1]*ms)+"px;width:"+(bcourt[2]*ms)+"px;height:"+(bcourt[3]*ms)+"px;background:#2F8F4E;'></div>";
+  mh+="<div style='position:absolute;left:"+(jheel[0]*ms)+"px;top:"+(jheel[1]*ms)+"px;width:"+(jheel[2]*ms)+"px;height:"+(jheel[3]*ms)+"px;background:#2C7CA8;border-radius:50%;'></div>";
   mh+="<div style='position:absolute;left:"+(oat[0]*ms)+"px;top:"+(oat[1]*ms)+"px;width:"+(oat[2]*ms)+"px;height:"+(oat[3]*ms)+"px;background:#D85A30;border-radius:50%;'></div>";
   B.forEach(function(b){
     var c=TY[b.t];
@@ -386,12 +383,34 @@
   mh+="<div id='mmprof' style='position:absolute;width:4px;height:4px;background:#FF4444;border-radius:50%;z-index:2;'></div>";
   mm.innerHTML=mh;
   var mmp=document.getElementById("mmp"),mmprof=document.getElementById("mmprof");
+  var lampHeads=Array.prototype.slice.call(document.querySelectorAll(".lamp-head"));
+  var nightlayer=document.getElementById("nightlayer");
+  var dayStart=Date.now(),DAYCYCLE=150000,lampsOn=null,lastHourLbl="";
+  function curHour(){var p=((Date.now()-dayStart)%DAYCYCLE)/DAYCYCLE;return 6+p*18;}
+  function hourLabel(h){var hi=Math.floor(h)%24,ap=hi<12?"AM":"PM",d=hi%12;if(d===0)d=12;return d+" "+ap;}
+  function nightTint(h){
+    var a,col;
+    if(h<7){a=0.5;col="12,18,48";}
+    else if(h<8.5){a=0.5-(h-7)/1.5*0.42;col="40,34,66";}
+    else if(h<16){a=0.0;col="0,0,0";}
+    else if(h<18){a=(h-16)/2*0.16;col="240,150,60";}
+    else if(h<19.5){a=0.16+(h-18)/1.5*0.34;col="150,70,40";}
+    else{a=0.5;col="12,18,48";}
+    return "rgba("+col+","+a.toFixed(3)+")";
+  }
+  function updateDayNight(){
+    var h=curHour(),lbl=hourLabel(h);
+    if(lbl!==lastHourLbl){lastHourLbl=lbl;document.getElementById("h-clock").textContent=lbl;}
+    nightlayer.style.background=nightTint(h);
+    var on=(h>=18||h<6.7);
+    if(on!==lampsOn){lampsOn=on;for(var i=0;i<lampHeads.length;i++)lampHeads[i].className=on?"lamp-head on":"lamp-head";}
+  }
   var s,px,py,keys={},touch={},near=null,profCool=0,friendCool=0,catCool=0;
   var toast=document.getElementById("toast"),tt=null,prompt=document.getElementById("prompt"),act=document.getElementById("actbtn");
   function clamp(v,a,b){return v<a?a:(v>b?b:v);}
   function reset(){
     s={att:70,en:80,md:60,cg:7.5,mn:300,slot:0,fest:0,inFest:false,over:false,inClassroom:false,inLab:false,q1:false,q2:false,q4:false,depts:{}};
-    px=1000;py=770;profCool=0;
+    px=595;py=1360;profCool=0;
     document.getElementById("endscr").style.display="none";
     document.getElementById("classroom").style.display="none";
     document.getElementById("lab").style.display="none";
@@ -410,15 +429,15 @@
   function qsync(){
     var q1=document.getElementById("q1"),q2=document.getElementById("q2"),q3=document.getElementById("q3"),q4=document.getElementById("q4");
     q1.textContent=(s.q1?"\u2714":"\u25A1")+" First lecture at Prayukti Bhavan";q1.style.color=s.q1?"#9FE1A0":"#ddd";
-    q2.textContent=(s.q2?"\u2714":"\u25A1")+" Chaa at Milonda's";q2.style.color=s.q2?"#9FE1A0":"#ddd";
+    q2.textContent=(s.q2?"\u2714":"\u25A1")+" Chaa at Aahar Canteen";q2.style.color=s.q2?"#9FE1A0":"#ddd";
     var dc=deptCount();
-    q3.textContent=(dc>=6?"\u2714":"\u25A1")+" Visit all 6 engg depts ("+dc+"/6)";q3.style.color=dc>=6?"#9FE1A0":"#ddd";
+    q3.textContent=(dc>=NDEPT?"\u2714":"\u25A1")+" Visit all "+NDEPT+" engg depts ("+dc+"/"+NDEPT+")";q3.style.color=dc>=NDEPT?"#9FE1A0":"#ddd";
     q4.textContent=(s.q4?"\u2714":"\u25A1")+" Make it to Sanskriti";q4.style.color=s.q4?"#9FE1A0":"#ddd";
     var tk=document.getElementById("ticker");
     if(s.over)tk.textContent="Semester over.";
-    else if(!s.q1)tk.textContent="\u2022 Attend your first lecture at Prayukti Bhavan (bottom right)";
-    else if(!s.q2)tk.textContent="\u2022 Grab chaa at Milonda's Canteen";
-    else if(dc<6)tk.textContent="\u2022 Explore the engineering departments ("+dc+"/6)";
+    else if(!s.q1)tk.textContent="\u2022 Attend your first lecture at Prayukti Bhavan (lower left)";
+    else if(!s.q2)tk.textContent="\u2022 Grab chaa at Aahar Canteen";
+    else if(dc<NDEPT)tk.textContent="\u2022 Explore the engineering departments ("+dc+"/"+NDEPT+")";
     else if(!s.q4)tk.textContent="\u2022 Keep attendance \u226575% until Sanskriti";
     else tk.textContent="\u2022 Sanskriti week \u2014 go make memories";
   }
@@ -435,7 +454,6 @@
     document.getElementById("h-mn").textContent="\u20B9"+Math.round(s.mn);
     var d=document.getElementById("h-day");
     d.textContent=s.over?"Sem over":(s.inFest?"SANSKRITI \u00B7 "+((SEM+FEST)-s.slot)+" left":"Day "+(Math.floor(s.slot/4)+1)+" / 5 \u00B7 Sem");
-    document.getElementById("h-clock").textContent=slotT[s.slot%4];
     qsync();
   }
   function doAction(){
@@ -446,7 +464,7 @@
     var fx=s.inFest&&b.festFx?b.festFx:b.fx;
     var msg=s.inFest&&b.festMsg?b.festMsg:b.msg;
     if(fx.mn&&fx.mn<0&&s.mn<-fx.mn){showToast("Pocket khali! Tuition in Green Zone or scholarship at Aurobindo Bhavan first.");return;}
-    if(s.en<=8&&fx.en&&fx.en<0){showToast("Too tired. Milonda's, the hostel, or the jheel first.");return;}
+    if(s.en<=8&&fx.en&&fx.en<0){showToast("Too tired. Aahar, the hostel, or the jheel first.");return;}
     apply(fx);
     if(b.q==="first")s.q1=true;
     if(b.q==="chaa")s.q2=true;
@@ -539,7 +557,7 @@
     el.innerHTML=h;
   }
   function openClassroom(b){
-    if(s.en<=8){showToast("Too tired to sit through a lecture. Milonda's, the hostel, or the jheel first.");return;}
+    if(s.en<=8){showToast("Too tired to sit through a lecture. Aahar, the hostel, or the jheel first.");return;}
     s.inClassroom=true;
     croom.active=true;croom.b=b;croom.qs=pickQuestions(4);croom.idx=0;croom.correct=0;
     buildClassroomScene();
@@ -660,7 +678,7 @@
     renderWork();renderPalette();
   }
   function openLab(b){
-    if(s.en<=8){showToast("Too tired to focus on live wires. Milonda's, the hostel, or the jheel first.");return;}
+    if(s.en<=8){showToast("Too tired to focus on live wires. Aahar, the hostel, or the jheel first.");return;}
     s.inLab=true;
     var tpl=LAB_TPL[Math.floor(Math.random()*LAB_TPL.length)];
     lab.active=true;lab.b=b;lab.tpl=tpl;lab.attempts=0;lab.locked={};lab.won=false;
@@ -719,11 +737,11 @@
   }
   function endGame(){
     s.over=true;
-    var dc=deptCount(),qd=(s.q1?1:0)+(s.q2?1:0)+(dc>=6?1:0)+(s.q4?1:0);
+    var dc=deptCount(),qd=(s.q1?1:0)+(s.q2?1:0)+(dc>=NDEPT?1:0)+(s.q4?1:0);
     var base="Attendance "+Math.round(s.att)+"% \u00B7 CGPA "+s.cg.toFixed(2)+" \u00B7 mood "+Math.round(s.md)+" \u00B7 \u20B9"+Math.round(s.mn)+" \u00B7 fest "+s.fest+" \u00B7 quests "+qd+"/4. ";
     var t,body;
     if(s.att<75){t="Debarred list!";body=base+"Below the 75% cutoff \u2014 no Sanskriti, straight to the Aurobindo Bhavan notice board. PC Sir wins this round.";}
-    else if(s.cg>=8.2&&s.md>=55&&s.fest>=4&&qd===4){t="The complete JU experience";body=base+"Dean's list grades, pronite memories, all quests done. Milonda is proud. PC Sir is confused but proud.";}
+    else if(s.cg>=8.2&&s.md>=55&&s.fest>=4&&qd===4){t="The complete JU experience";body=base+"Dean's list grades, pronite memories, all quests done. Aahar's chai-wallah is proud. PC Sir is confused but proud.";}
     else if(s.cg>=8.2){t="Topper, but at what cost";body=base+"Great CGPA, but the campus barely saw you. The jheel misses you. Balance next sem.";}
     else if(s.fest>=5){t="Sanskriti core committee material";body=base+"You WERE the fest. The backlog can wait. The memories can't.";}
     else if(s.md>=70){t="Vibes department topper";body=base+"Adda life lived, PC Sir dodged. Academically questionable, spiritually rich.";}
@@ -762,6 +780,7 @@
     if(dy!==0&&pointIn(px+8,clamp(py+dy,4,WH-26)+11)){py=clamp(py+dy,4,WH-26);}
   }
   function step(){
+    updateDayNight();
     if(!s.over&&!s.inClassroom&&!s.inLab){
       var sp=2.6,dx=0,dy=0;
       if(keys["ArrowUp"]||keys["w"]||touch.up)dy-=sp;
