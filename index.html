@@ -23,25 +23,25 @@
     font-size:16px; line-height:1.65;
     height:100vh;display:flex;flex-direction:column;
   }
-  .wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;padding:8px 10px;gap:8px;}
+  .wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;padding:0;gap:0;}
   .signboard{
+    position:fixed;top:6px;left:50%;transform:translateX(-50%);z-index:22;
     background:var(--brick);
-    border:3px solid var(--brick-dark);
+    border:2px solid var(--brick-dark);
     border-radius:8px;
-    padding:6px 12px;
-    box-shadow:inset 0 0 0 3px rgba(0,0,0,0.15);
-    flex:0 0 auto;
+    padding:2px 6px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,0.15);
   }
-  .signboard .board{background:var(--sign);border-radius:4px;padding:6px 10px;text-align:center;}
+  .signboard .board{background:var(--sign);border-radius:4px;padding:2px 14px;text-align:center;}
   h1{
     margin:0;font-family:"Silkscreen",monospace;font-weight:700;
-    font-size:clamp(18px,3.6vw,28px);letter-spacing:2px;color:var(--accent);text-transform:uppercase;
+    font-size:14px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;
   }
-  .tagline{margin:3px 0 0;font-family:"Silkscreen",monospace;font-size:clamp(8px,1.6vw,11px);color:#FF79C6;letter-spacing:1px;}
-  #stagewrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .tagline{display:none;}
+  #stagewrap{flex:1;min-height:0;display:block;overflow:hidden;}
   #stage{
     position:relative;overflow:hidden;
-    border:4px solid var(--brick-dark);border-radius:10px;background:#B9B29A;
+    border:none;border-radius:0;background:#B9B29A;
     touch-action:none;
   }
   #world{position:absolute;top:0;left:0;width:1400px;height:1880px;transform-origin:top left;background:#C7C0A6;}
@@ -49,7 +49,10 @@
   .lamp-head{transition:background 0.4s linear,box-shadow 0.4s linear;}
   .lamp-head.on{background:#FFE9A8 !important;box-shadow:0 0 12px 5px rgba(255,226,150,0.9);}
   .hudpanel{position:absolute;background:rgba(12,10,24,0.85);border-radius:8px;z-index:20;}
-  .controls{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;}
+  .controls{position:fixed;left:12px;right:12px;bottom:8px;z-index:21;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;pointer-events:none;}
+  .controls .hint{order:1;margin-right:auto;pointer-events:none;}
+  .controls .dgrid{order:2;pointer-events:auto;opacity:0.9;}
+  .controls #actbtn{order:3;pointer-events:auto;}
   .dgrid{display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:42px 42px;gap:6px;}
   button{
     font-family:inherit;font-size:15px;color:var(--text);
@@ -123,7 +126,8 @@
         <div id="h-clock" class="hudpanel" style="position:static;color:#F2C14E;font-size:11px;padding:4px 8px;border-radius:6px;">9 AM</div>
       </div>
       <div id="mmap" style="position:relative;width:108px;height:146px;background:#8F8871;border:2px solid rgba(12,10,24,0.85);border-radius:6px;overflow:hidden;"></div>
-      <div id="qpanel" class="hudpanel" style="position:static;padding:6px 9px;max-width:172px;">
+      <button id="qbtn" style="font-family:'Silkscreen',monospace;font-size:10px;letter-spacing:0.5px;padding:5px 10px;background:rgba(12,10,24,0.85);color:#F2C14E;border:1px solid #453A85;border-radius:6px;">Quests [Q]</button>
+      <div id="qpanel" class="hudpanel" style="position:static;padding:6px 9px;max-width:172px;display:none;">
         <div style="font-size:10px;color:#F2C14E;letter-spacing:0.5px;margin-bottom:3px;">QUESTS</div>
         <div id="q1" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; First lecture at Prayukti Bhavan</div>
         <div id="q2" style="font-size:10px;color:#ddd;line-height:1.5;">&#9633; Chaa at Aahar Canteen</div>
@@ -179,13 +183,13 @@
       <button class="dpad" data-d="right" aria-label="Move right">&#9654;</button>
     </div>
     <button id="actbtn" disabled>Action (E)</button>
-    <div class="hint">Move with <span class="kbd">WASD</span> or arrow keys, interact with <span class="kbd">E</span>. The red dot is PC Sir &mdash; avoid him while bunking.</div>
+    <div class="hint">Move <span class="kbd">WASD</span>/arrows &middot; <span class="kbd">Shift</span> run &middot; <span class="kbd">E</span> interact &middot; <span class="kbd">Q</span> quests. Red dot is PC Sir &mdash; avoid him while bunking.</div>
   </div>
 </div>
 
 <script>
 (function(){
-  var WW=1400,WH=1880,VW=640,VH=400,SEM=20,FEST=4,NDEPT=4;
+  var WW=1400,WH=1880,VW=1040,VH=640,SEM=20,FEST=4,NDEPT=4;
   var world=document.getElementById("world"),stage=document.getElementById("stage"),stagewrap=document.getElementById("stagewrap");
   var poly=[
     [100,60],[1300,60],[1350,140],[1350,1740],
@@ -791,12 +795,13 @@
     n.el.style.left=n.x+"px";n.el.style.top=n.y+"px";
   }
   function hits(n,r){var dx=(px+8)-(n.x+7),dy=(py+11)-(n.y+10);return dx*dx+dy*dy<r*r;}
-  var sc=1;
+  var sc=1,ZOOM=1.5;
   function fit(){
     var availW=stagewrap.clientWidth,availH=stagewrap.clientHeight;
-    sc=Math.min(availW/VW,availH/VH);
-    stage.style.width=(VW*sc)+"px";
-    stage.style.height=(VH*sc)+"px";
+    stage.style.width=availW+"px";
+    stage.style.height=availH+"px";
+    sc=ZOOM;
+    VW=availW/sc;VH=availH/sc;
   }
   function hitsSolid(nx,ny){
     var bx=nx+2,by=ny+12,bw=12,bh=9;
@@ -817,7 +822,7 @@
   function step(){
     updateDayNight();
     if(!s.over&&!s.inClassroom&&!s.inLab){
-      var sp=2.6,dx=0,dy=0;
+      var sp=(keys["Shift"]?4.4:2.6),dx=0,dy=0;
       if(keys["ArrowUp"]||keys["w"]||touch.up)dy-=sp;
       if(keys["ArrowDown"]||keys["s"]||touch.down)dy+=sp;
       if(keys["ArrowLeft"]||keys["a"]||touch.left)dx-=sp;
@@ -866,7 +871,7 @@
           prompt.style.display="none";act.disabled=true;act.textContent="Action (E)";
         }
       }
-      var camX=clamp(px-VW/2,0,WW-VW),camY=clamp(py-VH/2,0,WH-VH);
+      var camX=(WW<=VW)?(WW-VW)/2:clamp(px-VW/2,0,WW-VW),camY=(WH<=VH)?(WH-VH)/2:clamp(py-VH/2,0,WH-VH);
       world.style.transform="scale("+sc+") translate("+(-camX)+"px,"+(-camY)+"px)";
       mmp.style.left=(px*ms)+"px";mmp.style.top=(py*ms)+"px";
       mmprof.style.left=(prof.x*ms)+"px";mmprof.style.top=(prof.y*ms)+"px";
@@ -878,6 +883,7 @@
     if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.key)>-1)e.preventDefault();
     keys[k]=true;
     if(k==="e")doAction();
+    if(k==="q"){e.preventDefault();toggleQuests();}
   });
   document.addEventListener("keyup",function(e){var k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false;});
   Array.prototype.forEach.call(document.querySelectorAll(".dpad"),function(btn){
@@ -888,6 +894,9 @@
     btn.addEventListener("pointerleave",function(){touch[d]=false;});
   });
   act.addEventListener("click",doAction);
+  var qpanelEl=document.getElementById("qpanel"),qbtnEl=document.getElementById("qbtn");
+  function toggleQuests(){qpanelEl.style.display=(qpanelEl.style.display==="none"?"block":"none");}
+  qbtnEl.addEventListener("click",function(){toggleQuests();qbtnEl.blur();});
   document.getElementById("lab-test").addEventListener("click",testCircuit);
   document.getElementById("restart").addEventListener("click",reset);
   window.addEventListener("resize",fit);
