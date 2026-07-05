@@ -220,23 +220,23 @@
   var B=[
     {x:110,y:150,w:200,h:300,t:"adm",name:"Tequip Building",act:"Innovation cell",fx:{cg:+0.06,md:+4,en:-6},msg:"Tinkered at the TEQIP innovation cell. Half a prototype, full enthusiasm."},
     {x:470,y:110,w:290,h:180,t:"aca",name:"Central Library",act:"Grind DSA",fx:{cg:+0.22,en:-14,md:-4},msg:"Three hours of segment trees in the Central Library. The AC alone was worth it.",festAct:"Sneak-study",festFx:{cg:+0.12,md:-6,en:-10},festMsg:"Studying during Sanskriti? The librarian respects it. Your friends don't."},
-    {x:470,y:470,w:290,h:190,t:"adm",name:"Triguna Sen Auditorium",act:"Catch a show",fx:{md:+12,en:-4},msg:"A student production at Triguna Sen. You clapped, you cried, you queued for samosas.",festAct:"Cultural nite",festFx:{md:+16,fest:+1,en:-8},festMsg:"Sanskriti cultural night at Triguna Sen. Every seat full, every heart fuller."},
+    {x:470,y:470,w:290,h:190,t:"adm",name:"Triguna Sen Auditorium",sound:"Triguna_Sen",act:"Catch a show",fx:{md:+12,en:-4},msg:"A student production at Triguna Sen. You clapped, you cried, you queued for samosas.",festAct:"Cultural nite",festFx:{md:+16,fest:+1,en:-8},festMsg:"Sanskriti cultural night at Triguna Sen. Every seat full, every heart fuller."},
     {x:930,y:470,w:300,h:120,t:"res",name:"Hostel",act:"Power nap",fx:{en:+26,md:+4},msg:"Ninety glorious minutes of hostel sleep. The fan even worked.",festAct:"Fest crash",festFx:{en:+30,md:+2},festMsg:"Recharged at the hostel between fest events. Strategic."},
-    {x:110,y:820,w:230,h:150,t:"aca",name:"Workshop",act:"Tinker",fx:{cg:+0.06,md:+5,en:-8},msg:"Tinkered at the Workshop. Made a thing. It almost works."},
-    {x:110,y:1050,w:235,h:210,t:"aca",hero:true,name:"Prayukti Bhavan",safe:true,act:"Enter Classroom",fx:{att:+6,en:-10,cg:+0.08},msg:"DSP lecture at Prayukti Bhavan (Civil + CSE + ETCE) attended. PC Sir nodded at you.",festAct:"Volunteer desk",festFx:{mn:+100,md:+6,fest:+1,en:-8},festMsg:"Fest volunteer duty at Prayukti Bhavan. \u20B9100 honorarium plus free snacks.",q:"first"},
-    {x:aahar[0],y:aahar[1],w:aahar[2],h:aahar[3],t:"can",name:"Aahar Canteen",act:"Cha + adda \u00B7 \u20B925",fx:{md:+16,en:+10,mn:-25,att:-2},msg:"An hour of pure adda at Aahar over cutting chai. Solved the nation's problems, forgot two assignments.",festAct:"Fest adda circle",festFx:{md:+18,mn:-35,fest:+1},festMsg:"Fest-week adda circle at Aahar, six benches pushed together. Someone's guitar shows up eventually.",q:"chaa"},
+    {x:110,y:820,w:230,h:150,t:"aca",name:"Workshop",sound:"WorkShop",act:"Tinker",fx:{cg:+0.06,md:+5,en:-8},msg:"Tinkered at the Workshop. Made a thing. It almost works."},
+    {x:110,y:1050,w:235,h:210,t:"aca",hero:true,name:"Prayukti Bhavan",sound:"Prayukti",safe:true,act:"Enter Classroom",fx:{att:+6,en:-10,cg:+0.08},msg:"DSP lecture at Prayukti Bhavan (Civil + CSE + ETCE) attended. PC Sir nodded at you.",festAct:"Volunteer desk",festFx:{mn:+100,md:+6,fest:+1,en:-8},festMsg:"Fest volunteer duty at Prayukti Bhavan. \u20B9100 honorarium plus free snacks.",q:"first"},
+    {x:aahar[0],y:aahar[1],w:aahar[2],h:aahar[3],t:"can",name:"Aahar Canteen",sound:"Canteen",act:"Cha + adda \u00B7 \u20B925",fx:{md:+16,en:+10,mn:-25,att:-2},msg:"An hour of pure adda at Aahar over cutting chai. Solved the nation's problems, forgot two assignments.",festAct:"Fest adda circle",festFx:{md:+18,mn:-35,fest:+1},festMsg:"Fest-week adda circle at Aahar, six benches pushed together. Someone's guitar shows up eventually.",q:"chaa"},
     {x:950,y:1050,w:250,h:120,t:"aca",name:"Mechanical Dept",dept:true,act:"Workshop practical",fx:{cg:+0.1,en:-12},msg:"Fitting job at the Mechanical workshop. Your file work is still crooked."},
     {x:110,y:1320,w:235,h:120,t:"aca",name:"Electrical Engg Building",dept:true,lab:true,act:"Enter Lab",fx:{cg:+0.1,en:-10,md:-2},msg:"Machines lab at Electrical. The transformer hummed. So did you, nervously."},
-    {x:460,y:1360,w:320,h:120,t:"adm",court:true,name:"Aurobindo Bhavan",act:"Collect scholarship",fx:{mn:+150,md:-8,en:-6},msg:"One hour queue at Aurobindo Bhavan, but the scholarship cleared. \u20B9150 in.",festAct:"Fest pass desk",festFx:{mn:+80,en:-5,fest:+1},festMsg:"Fest pass counter duty at Aurobindo Bhavan. \u20B980 and infinite gossip."},
-    {x:830,y:1360,w:140,h:120,t:"aca",name:"Chemical Dept",dept:true,act:"Titration lab",fx:{cg:+0.12,en:-12,md:-3},msg:"Titration at Chemical Dept. Endpoint missed twice, dignity thrice."},
+    {x:460,y:1360,w:320,h:120,t:"adm",court:true,name:"Aurobindo Bhavan",sound:"Aurobindo_Bhavan",act:"Collect scholarship",fx:{mn:+150,md:-8,en:-6},msg:"One hour queue at Aurobindo Bhavan, but the scholarship cleared. \u20B9150 in.",festAct:"Fest pass desk",festFx:{mn:+80,en:-5,fest:+1},festMsg:"Fest pass counter duty at Aurobindo Bhavan. \u20B980 and infinite gossip."},
+    {x:830,y:1360,w:140,h:120,t:"aca",name:"Chemical Dept",sound:"Chemical",dept:true,act:"Titration lab",fx:{cg:+0.12,en:-12,md:-3},msg:"Titration at Chemical Dept. Endpoint missed twice, dignity thrice."},
     {x:1010,y:1360,w:220,h:120,t:"aca",name:"Food & Biotech Dept",dept:true,act:"Taste-testing",fx:{en:+12,md:+10,cg:+0.04},msg:"FTBE friends needed taste-testers. You bravely volunteered. Twice."},
-    {x:150,y:1580,w:220,h:100,t:"can",name:"CET Canteen",act:"Cha + toast \u00B7 \u20B930",fx:{en:+16,md:+8,mn:-30},msg:"Cheese toast and lebu chaa at CET Canteen. \u20B930 well spent.",festAct:"Fest special \u00B7 \u20B950",festFx:{en:+20,md:+10,mn:-50,fest:+1},festMsg:"CET Canteen fest special. Queue was 20 minutes, worth 40."},
-    {x:820,y:1600,w:340,h:110,t:"aca",name:"Chemical Dept Annexe",act:"Store room",fx:{cg:+0.04,en:-6},msg:"Dug through the Chemical Dept annexe store room. Found glassware older than you."}
+    {x:150,y:1580,w:220,h:100,t:"can",name:"CET Canteen",sound:"Canteen",act:"Cha + toast \u00B7 \u20B930",fx:{en:+16,md:+8,mn:-30},msg:"Cheese toast and lebu chaa at CET Canteen. \u20B930 well spent.",festAct:"Fest special \u00B7 \u20B950",festFx:{en:+20,md:+10,mn:-50,fest:+1},festMsg:"CET Canteen fest special. Queue was 20 minutes, worth 40."},
+    {x:820,y:1600,w:340,h:110,t:"aca",name:"Chemical Dept Annexe",sound:"Chemical",act:"Store room",fx:{cg:+0.04,en:-6},msg:"Dug through the Chemical Dept annexe store room. Found glassware older than you."}
   ];
   var bcB={x:bcourt[0],y:bcourt[1],w:bcourt[2],h:bcourt[3],bcourt:true,name:"Basketball Court",act:"Shoot hoops",fx:{en:-12,md:+14},msg:"Half-court pickup at the Basketball Court. Airballed twice, buzzer-beat once.",festAct:"3v3 fest tourney",festFx:{md:+16,en:-14,fest:+1},festMsg:"Fest 3v3 tournament on the Basketball Court. ETCE bench went feral."};
-  var gzB={x:110,y:560,w:230,h:180,gz:true,name:"Green Zone",act:"Take tuition",fx:{mn:+200,en:-12,md:-2},msg:"Taught a class 11 kid integration in Green Zone. \u20B9200 earned honestly.",festAct:"Stall hopping",festFx:{md:+10,mn:-40,fest:+1},festMsg:"Fest stalls in Green Zone. Bought a bracelet you'll never wear. \u20B940 gone."};
-  var oatB={x:oat[0],y:oat[1],w:oat[2],h:oat[3],oat:true,name:"OAT",act:"Jam at OAT",fx:{md:+18,en:-12,att:-2},msg:"Open mic at OAT. Someone covered Anuv Jain, you screamed every lyric.",festAct:"PRONITE!",festFx:{md:+25,en:-18,fest:+2},festMsg:"PRONITE at OAT. Front row, strangers' shoulders, voice gone by song three."};
-  var pgB={x:playgnd[0],y:playgnd[1],w:playgnd[2],h:playgnd[3],field:true,name:"JU Playground",act:"Play a match",fx:{en:-15,md:+14},msg:"Gully cricket on the JU Playground. Run out again, but what a cover drive.",festAct:"Fest football",festFx:{md:+12,en:-12,fest:+1},festMsg:"Inter-dept fest football. ETCE lost, morale somehow won."};
+  var gzB={x:110,y:560,w:230,h:180,gz:true,name:"Green Zone",sound:"GreenZone",act:"Take tuition",fx:{mn:+200,en:-12,md:-2},msg:"Taught a class 11 kid integration in Green Zone. \u20B9200 earned honestly.",festAct:"Stall hopping",festFx:{md:+10,mn:-40,fest:+1},festMsg:"Fest stalls in Green Zone. Bought a bracelet you'll never wear. \u20B940 gone."};
+  var oatB={x:oat[0],y:oat[1],w:oat[2],h:oat[3],oat:true,name:"OAT",sound:"OAT",act:"Jam at OAT",fx:{md:+18,en:-12,att:-2},msg:"Open mic at OAT. Someone covered Anuv Jain, you screamed every lyric.",festAct:"PRONITE!",festFx:{md:+25,en:-18,fest:+2},festMsg:"PRONITE at OAT. Front row, strangers' shoulders, voice gone by song three."};
+  var pgB={x:playgnd[0],y:playgnd[1],w:playgnd[2],h:playgnd[3],field:true,name:"JU Playground",sound:"Playground",act:"Play a match",fx:{en:-15,md:+14},msg:"Gully cricket on the JU Playground. Run out again, but what a cover drive.",festAct:"Fest football",festFx:{md:+12,en:-12,fest:+1},festMsg:"Inter-dept fest football. ETCE lost, morale somehow won."};
   var jheelB={x:jheel[0],y:jheel[1],w:jheel[2],h:jheel[3],water:true,name:"Jheel Paar",act:"Chill by the jheel",fx:{md:+12,en:+6,att:-3},msg:"Adda at Jheel Paar. A cat adopted your lap for 40 minutes.",festAct:"Fairy-light adda",festFx:{md:+15,en:+5,fest:+1},festMsg:"Jheel Paar under fest fairy lights. Someone brought a guitar. Peak college."};
   var pondB={x:gzB.x+gzB.w-56,y:gzB.y+gzB.h-46,w:46,h:36,water:true,name:"Green Zone Pond",act:"Take a bath",fx:{en:+18,md:+10,att:-2},msg:"Quick, cold, slightly muddy bath in the Green Zone pond. Somehow the most refreshing part of the day.",festAct:"Splash fight",festFx:{md:+14,en:-4,fest:+1},festMsg:"Fest splash fight at the Green Zone pond. Everyone's clothes are ruined. Worth it."};
   var gates=[
@@ -437,9 +437,58 @@
   var s,px,py,keys={},touch={},near=null,profCool=0,friendCool=0,catCool=0;
   var toast=document.getElementById("toast"),tt=null,prompt=document.getElementById("prompt"),act=document.getElementById("actbtn");
   function clamp(v,a,b){return v<a?a:(v>b?b:v);}
+  function mkAudio(name,loop){
+    var a=new Audio("assets/"+name+".mp3");
+    a.loop=!!loop;a.preload="auto";
+    return a;
+  }
+  var bgMusic=mkAudio("BackGround",true);bgMusic.volume=0.45;
+  var walkSound=mkAudio("Walking",true);walkSound.volume=0.6;
+  var bathSplash=mkAudio("Bath_Splash",false);
+  var ohHellNah=mkAudio("oh-my-god-bro-oh-hell-nah-man",false);
+  var zoneAudio={},currentZoneName=null,walking=false,audioUnlocked=false,bathPlaying=false;
+  function zoneSound(name){
+    if(!zoneAudio[name]){zoneAudio[name]=mkAudio(name,true);zoneAudio[name].volume=0.55;}
+    return zoneAudio[name];
+  }
+  function updateBgMusic(){
+    if(!audioUnlocked)return;
+    if(walking||currentZoneName||bathPlaying){if(!bgMusic.paused)bgMusic.pause();}
+    else if(bgMusic.paused)bgMusic.play().catch(function(){});
+  }
+  function unlockAudio(){
+    if(audioUnlocked)return;
+    audioUnlocked=true;
+    updateBgMusic();
+  }
+  document.addEventListener("keydown",unlockAudio,{once:true});
+  document.addEventListener("pointerdown",unlockAudio,{once:true});
+  function setZone(name){
+    if(name===currentZoneName)return;
+    if(currentZoneName){zoneAudio[currentZoneName].pause();zoneAudio[currentZoneName].currentTime=0;}
+    currentZoneName=name;
+    if(name){var a=zoneSound(name);a.currentTime=0;a.play().catch(function(){});}
+    updateBgMusic();
+  }
+  function setWalking(on){
+    if(on===walking)return;
+    walking=on;
+    if(on){walkSound.currentTime=0;walkSound.play().catch(function(){});}
+    else walkSound.pause();
+    updateBgMusic();
+  }
+  function playBathSequence(){
+    bathPlaying=true;updateBgMusic();
+    bathSplash.currentTime=0;bathSplash.play().catch(function(){});
+    bathSplash.onended=function(){
+      ohHellNah.currentTime=0;ohHellNah.play().catch(function(){});
+      ohHellNah.onended=function(){bathPlaying=false;updateBgMusic();};
+    };
+  }
   function reset(){
     s={att:70,en:80,md:60,cg:7.5,mn:300,slot:0,fest:0,inFest:false,over:false,inClassroom:false,inLab:false,q1:false,q2:false,q4:false,depts:{}};
     px=675;py=1690;profCool=0;
+    near=null;setWalking(false);setZone(null);
     document.getElementById("endscr").style.display="none";
     document.getElementById("classroom").style.display="none";
     document.getElementById("lab").style.display="none";
@@ -490,6 +539,7 @@
     var b=near;
     if(b.hero&&!s.inFest){openClassroom(b);return;}
     if(b.lab&&!s.inFest){openLab(b);return;}
+    if(b===pondB)playBathSequence();
     var fx=s.inFest&&b.festFx?b.festFx:b.fx;
     var msg=s.inFest&&b.festMsg?b.festMsg:b.msg;
     if(fx.mn&&fx.mn<0&&s.mn<-fx.mn){showToast("Pocket khali! Tuition in Green Zone or scholarship at Aurobindo Bhavan first.");return;}
@@ -821,6 +871,7 @@
   }
   function step(){
     updateDayNight();
+    if(s.over||s.inClassroom||s.inLab){setWalking(false);setZone(null);}
     if(!s.over&&!s.inClassroom&&!s.inLab){
       var sp=(keys["Shift"]?4.4:2.6),dx=0,dy=0;
       if(keys["ArrowUp"]||keys["w"]||touch.up)dy-=sp;
@@ -828,6 +879,7 @@
       if(keys["ArrowLeft"]||keys["a"]||touch.left)dx-=sp;
       if(keys["ArrowRight"]||keys["d"]||touch.right)dx+=sp;
       if(dx!==0||dy!==0)tryMove(dx,dy);
+      setWalking(dx!==0||dy!==0);
       pel.style.left=px+"px";pel.style.top=py+"px";
       wanderers.forEach(moveNpc);moveNpc(friend);moveNpc(cat);
       if(!s.inFest){prof.el.style.display="block";moveNpc(prof);mmprof.style.display="block";}
@@ -859,6 +911,7 @@
       }
       if(found!==near){
         near=found;
+        setZone(near&&near.sound?near.sound:null);
         if(near){
           var lbl=s.inFest&&near.festAct?near.festAct:near.act;
           prompt.textContent="E \u2014 "+lbl+" \u00B7 "+near.name;

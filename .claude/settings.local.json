@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '/<script>/{f=1;next}/<\\\\/script>/{f=0}f' index.html)",
+      "Bash(node -c /tmp/claude-1000/-home-shai-tan-Projects-JU-Simulator/012a55df-7815-4d53-9282-bbe6ffadd8ea/scratchpad/check.js)",
+      "Bash(python3 -c \"import playwright\")",
+      "Bash(npx --yes playwright --version)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(node test_audio.js)",
+      "Bash(pkill -f \"http.server 8933\")"
+    ]
+  }
+}
