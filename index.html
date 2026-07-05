@@ -258,8 +258,15 @@
   var slotT=["9 AM","12 PM","4 PM","8 PM"];
   var clip="polygon("+poly.map(function(p){return p[0]+"px "+p[1]+"px";}).join(",")+")";
   var html="";
-  html+="<div style='position:absolute;inset:0;background:#7CC262;clip-path:"+clip+";'></div>";
-  html+="<div style='position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,0,0,0.04) 39px,rgba(0,0,0,0.04) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,0,0,0.04) 39px,rgba(0,0,0,0.04) 40px);clip-path:"+clip+";'></div>";
+  html+="<div style='position:absolute;inset:0;background-color:#7CC262;background-image:"
+    +"radial-gradient(ellipse at center,rgba(255,255,255,0.07),transparent 65%),"
+    +"radial-gradient(ellipse at center,rgba(20,60,15,0.11),transparent 60%),"
+    +"radial-gradient(ellipse at center,rgba(120,200,90,0.10),transparent 70%),"
+    +"repeating-linear-gradient(112deg,rgba(20,70,10,0.13) 0px,rgba(20,70,10,0.13) 1px,transparent 1px,transparent 6px),"
+    +"repeating-linear-gradient(68deg,rgba(180,230,150,0.16) 0px,rgba(180,230,150,0.16) 1px,transparent 1px,transparent 8px);"
+    +"background-size:150px 110px,95px 140px,180px 90px,auto,auto;"
+    +"background-position:0 0,55px 70px,20px 130px,0 0,0 0;"
+    +"clip-path:"+clip+";'></div>";
   paths.forEach(function(p){
     var horiz=p[2]>=p[3];
     html+="<div style='position:absolute;left:"+p[0]+"px;top:"+p[1]+"px;width:"+p[2]+"px;height:"+p[3]+"px;background:#3B3E44;border:1px solid #2B2D32;'></div>";
@@ -453,7 +460,7 @@
   }
   function updateBgMusic(){
     if(!audioUnlocked)return;
-    if(walking||currentZoneName||bathPlaying){if(!bgMusic.paused)bgMusic.pause();}
+    if(currentZoneName||bathPlaying){if(!bgMusic.paused)bgMusic.pause();}
     else if(bgMusic.paused)bgMusic.play().catch(function(){});
   }
   function unlockAudio(){
@@ -873,7 +880,7 @@
     updateDayNight();
     if(s.over||s.inClassroom||s.inLab){setWalking(false);setZone(null);}
     if(!s.over&&!s.inClassroom&&!s.inLab){
-      var sp=(keys["Shift"]?4.4:2.6),dx=0,dy=0;
+      var sp=(keys["Shift"]?2.4:1.4),dx=0,dy=0;
       if(keys["ArrowUp"]||keys["w"]||touch.up)dy-=sp;
       if(keys["ArrowDown"]||keys["s"]||touch.down)dy+=sp;
       if(keys["ArrowLeft"]||keys["a"]||touch.left)dx-=sp;
